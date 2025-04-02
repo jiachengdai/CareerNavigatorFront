@@ -63,14 +63,14 @@ upstream     https://github.com/jiachengdai/CareerNavigatorFront (push)
 ➜  git fetch upstream
 ➜  git pull upstream master
 ```
-（3）Push 到远程仓库
+7）Push 到远程仓库
 
 将本地的修改推送到 GitHub 上。如果遇到冲突问题，可以参考 GitHub 文档 来解决。
 ```
 ➜  git push origin my-cool-stuff
 ```
 
-（4）提交 Pull Request（PR）合入代码
+8）提交 Pull Request（PR）合入代码
 
 打开（https://github.com/你的名字/CareerNavigatorFront）页面，并切换到所建分支，然后单击 Compare & pull request 按钮。
 ![alt text](image-1.png)
@@ -85,5 +85,6 @@ upstream     https://github.com/jiachengdai/CareerNavigatorFront (push)
 ### 在这里进行测试
 
 @jiachengdai : Hello
+
 @你的用户名： 随便输入内容
 
