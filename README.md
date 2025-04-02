@@ -40,20 +40,24 @@ git commit -m "一段对你修改内容的描述"
 在向原仓库发起 Pull Request 合入代码之前，需要同步原仓库最新的代码。
 
 首先通过 git remote 查看当前远程仓库的名字。
-
+```
 ➜  git remote -v
+
 origin    https://github.com/USERNAME/CareerNavigatorFront (fetch)
 origin    https://github.com/USERNAME/CareerNavigatorFront (push)
+```
 这里命名为 origin 的远程仓库是之前 Fork 到自己用户名下的仓库。
 
 接下来需要创建一个原始仓库的远程主机，命名为 upstream。
-
+```
 ➜  git remote add upstream https://github.com/jiachengdai/CareerNavigatorFront
 ➜  git remote -v
+
 origin    https://github.com/USERNAME/Paddle.git (fetch)
 origin    https://github.com/USERNAME/Paddle.git (push)
 upstream     https://github.com/jiachengdai/CareerNavigatorFront (fetch)
 upstream     https://github.com/jiachengdai/CareerNavigatorFront (push)
+```
 获取原始仓库的最新代码并更新当前分支。
 ```
 ➜  git fetch upstream
@@ -68,13 +72,13 @@ upstream     https://github.com/jiachengdai/CareerNavigatorFront (push)
 
 （4）提交 Pull Request（PR）合入代码
 
-打开（https://github.com/USERNAME/Paddle）页面，并切换到所建分支，然后单击 Compare & pull request 按钮。
-
+打开（https://github.com/你的名字/CareerNavigatorFront）页面，并切换到所建分支，然后单击 Compare & pull request 按钮。
+![alt text](image-1.png)
 
 
 选择目标分支:
 
-
+![alt text](image-2.png)
 
 添加必要的评论信息，然后单击 Create pull request 按钮。
 
