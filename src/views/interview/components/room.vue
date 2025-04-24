@@ -18,8 +18,18 @@
               "
             >
               <img
-                src="@/assets/imgs/intervieweer.png"
+                v-if="!playVideo"
+                src="@/assets/imgs/interview-static.png"
                 alt="虚拟面试官"
+                class="video"
+                style="border-radius: 16px; max-height: 100%"
+              />
+              <video
+                v-if="playVideo"
+                src="@/assets/interview.mp4"
+                alt="虚拟面试官"
+                autoplay
+                loop
                 class="video"
                 style="border-radius: 16px; max-height: 100%"
               />
@@ -88,6 +98,7 @@
 
 <script lang="js" setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+const playVideo = ref(false); // 控制视频播放
 const videoState = ref(false); // 引用 video 元素
 const videoRef = ref(null); // 引用 video 元素
 const stream = ref(null); // 保存摄像头流

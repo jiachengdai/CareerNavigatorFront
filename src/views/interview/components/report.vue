@@ -94,9 +94,6 @@
   </div>
 </template>
 <style>
-body {
-  /* background-color: #f9fafb; */
-}
 .container {
   max-width: 72rem;
   margin: 0 auto;
