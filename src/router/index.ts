@@ -68,14 +68,20 @@ const routes: Array<RouteRecordRaw> = [
       path:'/interview/manage',
       name:'interviewManage',
       component:()=>import('@/views/interview/components/manage.vue'),
-    }
+    },
+    {
+      path:'/interview/test',
+      name:'interviewTest',
+      component:()=>import('@/views/interview/components/test.vue'),
+    }, 
     ]
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')
-  }
+  },
+  
 ];
 
 // 创建路由实例
