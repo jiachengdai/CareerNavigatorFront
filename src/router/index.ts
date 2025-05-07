@@ -79,6 +79,12 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: '/profile/:username',
+    name: 'profile',
+    component: () => import('@/views/profile/index.vue'),
+    meta: { title: 'AI简历 - 个人信息' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')

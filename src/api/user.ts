@@ -1,4 +1,4 @@
-import { get, post, del } from '@/utils/request.ts'
+import { get, post, del, put } from '@/utils/request.ts'
 import type { UserInfo, ApiResponse } from '@/types/user'
 
 // 根据ID获取用户信息
@@ -19,6 +19,11 @@ export const getUserListService = (): Promise<ApiResponse<UserInfo[]>> => {
 // 添加用户
 export const addUserService = (userData: Omit<UserInfo, 'id'>): Promise<ApiResponse<UserInfo>> => {
   return post<ApiResponse<UserInfo>>('/user/add', userData)
+}
+
+// 更新用户
+export const updateUserService = (userData: UserInfo): Promise<ApiResponse<UserInfo>> => {
+  return put<ApiResponse<UserInfo>>('/user/update', userData)
 }
 
 // 删除用户

@@ -32,6 +32,11 @@
         </div>
         <template #overlay>
           <a-menu>
+            <a-menu-item key="profile">
+              <a @click="handleViewProfile">
+                <UserOutlined /> 个人信息
+              </a>
+            </a-menu-item>
             <a-menu-item key="username">
               <a @click="handleUpdateUsername">
                 <UserOutlined /> 修改用户名
@@ -230,6 +235,13 @@ const handleLogout = async () => {
     tokenStore.removeToken();
     accountStore.removeInfo();
     router.push('/login');
+  }
+};
+
+// 处理查看个人信息
+const handleViewProfile = () => {
+  if (userInfo.value?.username) {
+    router.push(`/profile/${userInfo.value.username}`);
   }
 };
 
