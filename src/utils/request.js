@@ -6,7 +6,7 @@ import {ElMessage} from 'element-plus';
 import {useTokenStore} from '@/store/token';
 
 //定义一个变量,记录公共的前缀  ,  baseURL
-const baseURL = '/api';
+const baseURL = '/api';  // 使用代理路径
 const instance = axios.create({baseURL});
 const router = {
     push: () => {

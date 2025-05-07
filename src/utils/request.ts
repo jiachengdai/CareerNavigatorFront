@@ -1,19 +1,20 @@
 import axios from 'axios'
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { useTokenStore } from '@/store/token'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080',
+  baseURL: '/api',
   timeout: 15000
 })
 
 // 请求拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 从localStorage获取token
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = token
+    // 从TokenStore获取token
+    const tokenStore = useTokenStore()
+    if (tokenStore.token) {
+      config.headers.Authorization = tokenStore.token
     }
     return config
   },
@@ -26,10 +27,21 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
-    // 这里可以根据后端的响应结构进行统一处理
-    return res
+    // 判断业务状态码
+    if (res.code === 0) {
+      return res
+    }
+    return Promise.reject(res)
   },
   (error) => {
+    if (error.response && error.response.status === 401) {
+      // 未授权处理
+      console.error('未授权，请重新登录')
+      const tokenStore = useTokenStore()
+      tokenStore.removeToken()
+      // 这里不直接使用router跳转，避免循环依赖
+      window.location.href = '/login'
+    }
     return Promise.reject(error)
   }
 )
