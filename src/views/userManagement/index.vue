@@ -1,43 +1,15 @@
 <template>
   <div class="user-management-container" :class="{ 'dark-mode': settingsStore.isDark }">
-    <a-card title="用户管理" :bordered="false">
-      <!-- 搜索和过滤区域 -->
-      <div class="filter-container">
-        <a-row :gutter="16">
-          <a-col :span="6">
-            <a-input-search
-              v-model:value="searchKeyword"
-              placeholder="用户名/昵称/邮箱"
-              @search="handleSearch"
-              allow-clear
-            />
-          </a-col>
-          <a-col :span="5">
-            <a-select
-              v-model:value="educationFilter"
-              placeholder="选择学历"
-              style="width: 100%"
-              allow-clear
-              @change="handleFilterChange"
-            >
-              <a-select-option value="高中">高中</a-select-option>
-              <a-select-option value="专科">专科</a-select-option>
-              <a-select-option value="本科">本科</a-select-option>
-              <a-select-option value="硕士">硕士</a-select-option>
-              <a-select-option value="博士">博士</a-select-option>
-            </a-select>
-          </a-col>
-          <a-col :span="5">
-            <a-button type="primary" @click="showCreateModal">
-              <PlusOutlined /> 新建用户
-            </a-button>
-          </a-col>
-        </a-row>
-      </div>
+    <a-card title="用户管理" :bordered="false" :class="{ 'dark-mode': settingsStore.isDark }">
+      <template #extra>
+        <a-button type="primary" @click="showCreateModal">
+          <PlusOutlined /> 新建用户
+        </a-button>
+      </template>
 
       <!-- 用户表格 -->
       <a-table
-        :dataSource="paginatedUsers"
+        :dataSource="userList"
         :columns="columns"
         :pagination="false"
         :loading="loading"
@@ -77,8 +49,8 @@
       <!-- 分页器 -->
       <div class="pagination-container">
         <a-pagination
-          v-model:current="currentPage"
-          :total="filteredUsers.length"
+          v-model:current="pageNum"
+          :total="total"
           :pageSize="pageSize"
           show-size-changer
           :pageSizeOptions="['10', '20', '50', '100']"
@@ -89,7 +61,9 @@
             prev_page: '上一页',
             next_page: '下一页',
             prev_5: '向前 5 页',
-            next_5: '向后 5 页'
+            next_5: '向后 5 页',
+            page: '页',
+            total: '共 {total} 条数据'
           }"
         />
       </div>
@@ -211,15 +185,13 @@ const router = useRouter();
 const settingsStore = useSettingsStore();
 const isDark = computed(() => settingsStore.isDark);
 const loading = ref(false);
-const allUsers = ref<UserInfo[]>([]);
-
-// 筛选和搜索
-const searchKeyword = ref('');
-const educationFilter = ref<string | undefined>(undefined);
+const userList = ref<UserInfo[]>([]);
 
 // 分页
-const currentPage = ref(1);
+const pageNum = ref(1);
 const pageSize = ref(10);
+const total = ref(0);
+const pages = ref(0);
 
 // 表单相关
 const modalVisible = ref(false);
@@ -320,41 +292,18 @@ const columns = [
   }
 ];
 
-// 经过筛选的用户列表
-const filteredUsers = computed(() => {
-  let result = [...allUsers.value];
-  
-  // 应用关键词搜索
-  if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase();
-    result = result.filter(user => 
-      (user.username && user.username.toLowerCase().includes(keyword)) ||
-      (user.nickname && user.nickname.toLowerCase().includes(keyword)) ||
-      (user.email && user.email.toLowerCase().includes(keyword))
-    );
-  }
-  
-  // 应用学历筛选
-  if (educationFilter.value) {
-    result = result.filter(user => user.education === educationFilter.value);
-  }
-  
-  return result;
-});
-
-// 分页后的用户列表
-const paginatedUsers = computed(() => {
-  const startIndex = (currentPage.value - 1) * pageSize.value;
-  return filteredUsers.value.slice(startIndex, startIndex + pageSize.value);
-});
-
 // 获取用户列表
 const fetchUsers = async () => {
   loading.value = true;
   try {
-    const res = await getUserListService();
+    const res = await getUserListService({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value
+    });
     if (res.code === 0) {
-      allUsers.value = res.data;
+      userList.value = res.data.list;
+      total.value = res.data.total;
+      pages.value = res.data.pages;
     } else {
       message.error(res.message || '获取用户列表失败');
     }
@@ -366,25 +315,17 @@ const fetchUsers = async () => {
   }
 };
 
-// 处理搜索
-const handleSearch = () => {
-  currentPage.value = 1; // 重置为第一页
-};
-
-// 处理筛选变化
-const handleFilterChange = () => {
-  currentPage.value = 1; // 重置为第一页
-};
-
 // 处理页码变化
 const handlePageChange = (page: number) => {
-  currentPage.value = page;
+  pageNum.value = page;
+  fetchUsers();
 };
 
 // 处理每页条数变化
 const handleSizeChange = (_: number, size: number) => {
   pageSize.value = size;
-  currentPage.value = 1; // 重置为第一页
+  pageNum.value = 1; // 重置为第一页
+  fetchUsers();
 };
 
 // 显示创建用户对话框

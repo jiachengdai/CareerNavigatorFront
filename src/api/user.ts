@@ -12,8 +12,23 @@ export const getUserByUsernameService = (username: string): Promise<ApiResponse<
 }
 
 // 获取用户列表
-export const getUserListService = (): Promise<ApiResponse<UserInfo[]>> => {
-  return get<ApiResponse<UserInfo[]>>('/user/list')
+export const getUserListService = (params?: { 
+  pageNum?: number, 
+  pageSize?: number
+}): Promise<ApiResponse<{
+  total: number;
+  list: UserInfo[];
+  pageNum: number;
+  pageSize: number;
+  pages: number;
+}>> => {
+  return get<ApiResponse<{
+    total: number;
+    list: UserInfo[];
+    pageNum: number;
+    pageSize: number;
+    pages: number;
+  }>>('/user/list', params)
 }
 
 // 添加用户

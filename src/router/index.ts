@@ -41,6 +41,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'AI简历 - AI深度交流', keepAlive: true }
   },
   {
+    path: '/mbti-test',
+    name: 'mbtiTest',
+    component: () => import('@/views/mbtiTest/index.vue'),
+    meta: { title: 'AI简历 - MBTI职业性格测评' }
+  },
+  {
     path:'/login',
     name:'login',
     component:()=>import('@/views/Login/index.vue'),

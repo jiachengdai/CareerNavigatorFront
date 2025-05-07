@@ -22,6 +22,10 @@
             <SvgIcon iconName="user" />
             用户管理
           </router-link></li>
+        <li><router-link to="/mbti-test">
+            <SvgIcon iconName="psychology" />
+            性格测评
+          </router-link></li>
         <li><router-link to="/resumeDesign">简历模板设计</router-link></li>
       </ul>
     </nav>
