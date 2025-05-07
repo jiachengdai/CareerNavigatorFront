@@ -35,7 +35,7 @@ onMounted(async () => {
       token: {
         colorPrimary: settingsStore.theme,
       },
-    }">
+    }" :locale="$locale">
       <router-view v-slot="{ Component }">
         <keep-alive include="aiDeep">
           <component :is="Component" />

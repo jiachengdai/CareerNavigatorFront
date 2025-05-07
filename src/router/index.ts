@@ -85,6 +85,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'AI简历 - 个人信息' }
   },
   {
+    path: '/user-management',
+    name: 'userManagement',
+    component: () => import('@/views/userManagement/index.vue'),
+    meta: { title: 'AI简历 - 用户管理' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')

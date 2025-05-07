@@ -425,5 +425,67 @@ const validateConfirmPassword = (rule: any, value: string) => {
 .dark .logo h1 {
   color: #cdd6f4;
 }
+
+/* 暗黑模式下的表单样式 */
+.dark :deep(.ant-input),
+.dark :deep(.ant-input-password .ant-input) {
+  background-color: #2c2e3b;
+  border-color: #45475a;
+  color: #fff;
+  caret-color: #fff;
+}
+
+.dark :deep(.ant-input-affix-wrapper),
+.dark :deep(.ant-input-password) {
+  background-color: #2c2e3b;
+  border-color: #45475a;
+}
+
+.dark :deep(.ant-input-affix-wrapper:focus),
+.dark :deep(.ant-input-affix-wrapper-focused),
+.dark :deep(.ant-input:focus),
+.dark :deep(.ant-input-focused) {
+  border-color: #9c87fe;
+  box-shadow: 0 0 0 2px rgba(156, 135, 254, 0.2);
+}
+
+.dark :deep(.ant-input-prefix) {
+  color: #9c87fe;
+}
+
+.dark :deep(.ant-input-password-icon) {
+  color: #9c87fe;
+}
+
+.dark :deep(.ant-checkbox-wrapper) {
+  color: #cdd6f4;
+}
+
+.dark :deep(.ant-checkbox-checked .ant-checkbox-inner) {
+  background-color: #9c87fe;
+  border-color: #9c87fe;
+}
+
+.dark :deep(.ant-tabs-tab) {
+  color: #a6adc8;
+}
+
+.dark :deep(.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #9c87fe;
+}
+
+.dark :deep(.ant-tabs-ink-bar) {
+  background: #9c87fe;
+}
+
+.dark :deep(.ant-btn-primary) {
+  background-color: #9c87fe;
+  border-color: #9c87fe;
+}
+
+.dark :deep(.ant-btn-primary:hover) {
+  background-color: #b4a4fe;
+  border-color: #b4a4fe;
+}
 </style>
 

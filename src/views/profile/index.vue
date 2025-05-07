@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container">
+  <div class="profile-container" :class="{ 'dark-mode': isDark }">
     <a-card title="个人信息" :bordered="false" class="profile-card">
       <template #extra>
         <a-button type="primary" @click="isEditing ? handleSave() : startEdit()" :loading="loading">
@@ -125,9 +125,12 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { getUserByUsernameService, addUserService, updateUserService } from '@/api/user';
 import type { UserInfo } from '@/types/user';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 const route = useRoute();
 const router = useRouter();
+const settingsStore = useSettingsStore();
+const isDark = computed(() => settingsStore.isDark);
 const username = computed(() => route.params.username as string);
 
 const loading = ref(false);
@@ -333,5 +336,92 @@ onMounted(() => {
 
 .ml-2 {
   margin-left: 8px;
+}
+
+/* 暗黑模式样式 */
+.dark-mode {
+  background-color: #1E1E2E;
+  color: #cdd6f4;
+}
+
+.dark-mode :deep(.profile-card) {
+  background-color: #1E1E2E;
+  color: #cdd6f4;
+  border-color: #313244;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode :deep(.ant-card) {
+  background-color: #1E1E2E;
+  color: #cdd6f4;
+  border-color: #313244;
+}
+
+.dark-mode :deep(.ant-card-head) {
+  background-color: #313244;
+  color: #cdd6f4;
+  border-color: #45475a;
+}
+
+.dark-mode :deep(.ant-descriptions),
+.dark-mode :deep(.ant-descriptions-view) {
+  background-color: #1E1E2E;
+  color: #cdd6f4;
+}
+
+.dark-mode :deep(.ant-descriptions-item-label),
+.dark-mode :deep(.ant-descriptions-item-content) {
+  background-color: #313244;
+  color: #cdd6f4;
+  border-color: #45475a;
+}
+
+.dark-mode :deep(.ant-empty-description) {
+  color: #cdd6f4;
+}
+
+.dark-mode :deep(.ant-input),
+.dark-mode :deep(.ant-input-number-input) {
+  background-color: #2c2e3b;
+  border-color: #45475a;
+  color: #fff;
+}
+
+.dark-mode :deep(.ant-input::placeholder) {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark-mode :deep(.ant-input-affix-wrapper),
+.dark-mode :deep(.ant-input-number),
+.dark-mode :deep(.ant-picker) {
+  background-color: #2c2e3b;
+  border-color: #45475a;
+}
+
+.dark-mode :deep(.ant-select-selector) {
+  background-color: #2c2e3b !important;
+  border-color: #45475a !important;
+  color: #fff !important;
+}
+
+.dark-mode :deep(.ant-select-selection-placeholder) {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.dark-mode :deep(.ant-select-arrow) {
+  color: #9c87fe;
+}
+
+.dark-mode :deep(.ant-btn-primary) {
+  background-color: #9c87fe;
+  border-color: #9c87fe;
+}
+
+.dark-mode :deep(.ant-form-item-label > label) {
+  color: #cdd6f4;
+}
+
+.dark-mode :deep(.ant-spin-text) {
+  color: #cdd6f4;
 }
 </style> 

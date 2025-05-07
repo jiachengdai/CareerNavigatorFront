@@ -18,7 +18,10 @@
             <SvgIcon iconName="setting" />
             网站配置
           </router-link></li>
-
+        <li><router-link to="/user-management">
+            <SvgIcon iconName="user" />
+            用户管理
+          </router-link></li>
         <li><router-link to="/resumeDesign">简历模板设计</router-link></li>
       </ul>
     </nav>
