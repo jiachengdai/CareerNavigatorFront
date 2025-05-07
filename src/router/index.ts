@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 
+import JobList from '../components/Job/JobList.vue';
+import JobDetails from '../components/Job/JobDetails.vue';
 
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
@@ -43,6 +45,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')
+  },
+  {
+    path: '/job-list',
+    name: 'JobList',
+    component: JobList
+  },
+  {
+    path: '/job-details/:id',
+    name: 'JobDetails',
+    component: JobDetails
   }
 ];
 

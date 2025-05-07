@@ -1,113 +1,116 @@
 <template>
-  <div class="settings-container">
-    <a-card class="settings-card" :bordered="false">
-      <h2 class="title">必要设置</h2>
 
-      <!-- 说明文字 -->
-      <p class="tips">
-        注意：此处调用接口使用的是 OpenAI 的接口格式
-        （换言之，只要你的大模型接口厂商使用的是 OpenAI 格式，你填入都能正常调用接口）
-        <span style="color:red">默认值不会改请不要动！！要是完全不会，就只填apikey就行了，点击链接前往获取key，填入即可</span>
-      </p>
-      <div class="input-group">
-        <label for="api-url">大模型名称<span style="color:red">（不懂勿改）</span></label>
-        <a-input id="api-url" v-model:value="settingsStore.modelName" placeholder="请输入模型名称" />
-        <p class="tips">
-          如果用我的反代地址，请使用阿里的大模型，如果不会配置，请勿修改，默认为"qwen-turbo"
-          <a href="https://bailian.console.aliyun.com/#/model-market" target="_blank">
-            查看阿里百炼模型大全
-          </a>。
-        </p>
-      </div>
+  <div class="job-seeker">
 
-      <div class="input-group">
-        <label for="api-key">API Key（使用大模型）</label>
-        <a-input id="api-key" v-model:value="settingsStore.aliApiKey" placeholder="请输入 API Key" />
-        <p class="tips">
-          请填写 API Key 用于调用 AI 模型。如果下面使用的是我提供的反代地址，请前往阿里云获取
-          <a href="https://bailian.console.aliyun.com/?apiKey=1#/api-key" target="_blank">阿里云百炼 API Key</a>。
-        </p>
-      </div>
-
-      <div class="input-group">
-        <label for="api-url">API URL<span style="color:red">（不懂勿改）</span></label>
-        <a-input id="api-url" v-model:value="settingsStore.aliApiUrl" placeholder="请输入 API URL" />
-        <p class="tips">
-          请填写 API URL（经过反向代理，解决跨域问题），用于调用 AI 模型。或者直接使用我提供的反代地址：
-          https://resumeai.404.pub/
-          （该地址仅适用于阿里云百炼 API Key）。
-          <a href="https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api" target="_blank">
-            查看阿里百炼官方文档
-          </a>。
-        </p>
-      </div>
-    </a-card>
+    <h1>岗位求职</h1>
+    <p>在这里你可以查找岗位、参与交流讨论以及追踪职位申请状态。</p>
+    <div class="tabs">
+      <el-tabs v-model="activeTab" type="card">
+        <el-tab-pane label="岗位列表" name="list">
+          <JobList />
+        </el-tab-pane>
+        <el-tab-pane label="交流讨论区" name="discussion">
+          <JobDiscussion />
+        </el-tab-pane>
+        <el-tab-pane label="职位追踪" name="tracking">
+          <JobTracking />
+        </el-tab-pane>
+      </el-tabs>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { useSettingsStore } from '../../store/useSettingsStore';
-const settingsStore = useSettingsStore();
+<script setup>
+import { ref } from 'vue';
+import JobList from '../../components/Job/JobList.vue';
+import JobDiscussion from '../../components/Job/JobDiscussion.vue';
+import JobTracking from '../../components/Job/JobTracking.vue';
+
+const activeTab = ref('list');
 </script>
 
 <style scoped>
-.settings-container {
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
+.job-seeker {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f8fafc;
+  min-height: 100vh;
 }
 
-.settings-card {
-  width: 100%;
-  max-width: 600px;
-  background: var(--card-color);
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  color: var(--text-color);
-}
-
-.title {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 24px;
+h1 {
+  color: #2d3748;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
   text-align: center;
-  color: var(--primary-color);
 }
 
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+p {
+  color: #718096;
+  font-size: 1.1rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
 }
 
-label {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text-color);
+.tabs {
+  margin-top: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.tips {
-  font-size: 13px;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 10px;
-  border-radius: 8px;
-  color: var(--text-color-secondary);
-  line-height: 1.5;
-  text-align: justify;
+:deep(.el-tabs) {
+  --el-color-primary: #3b82f6;
 }
 
-.tips a {
-  color: var(--primary-color);
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.3s;
+:deep(.el-tabs__header) {
+  margin: 0;
+  background: #f8fafc;
 }
 
-.tips a:hover {
-  color: var(--primary-color-hover);
-  text-decoration: underline;
+:deep(.el-tabs__nav) {
+  border: none !important;
+}
+
+:deep(.el-tabs__item) {
+  padding: 20px 30px !important;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none !important;
+  color: #64748b;
+}
+
+:deep(.el-tabs__item:hover) {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: #3b82f6;
+  background: white;
+  font-weight: 500;
+}
+
+:deep(.el-tabs__content) {
+  padding: 30px;
+}
+
+@media (max-width: 768px) {
+  .job-seeker {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  :deep(.el-tabs__item) {
+    padding: 15px 20px !important;
+    font-size: 0.9rem;
+  }
 }
 </style>

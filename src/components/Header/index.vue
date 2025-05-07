@@ -6,6 +6,10 @@
             <SvgIcon iconName="resume" />
             简历制作
           </router-link></li>
+
+        <li><router-link to="/resumeDesign">简历助手
+        </router-link></li>
+
         <li ref="templateStore"><router-link to="/template">
             <SvgIcon iconName="templateStore" />
             模板市场
@@ -16,20 +20,21 @@
           </router-link></li>
         <li ref="setting"><router-link to="/setting">
             <SvgIcon iconName="setting" />
-            网站配置
+            岗位求职
           </router-link></li>
 
         <li><router-link to="/resumeDesign">简历模板设计</router-link></li>
+
       </ul>
     </nav>
-    
+
   </header>
 
   <!-- 漫游式引导 -->
   <a-tour v-model:open="tourOpen" :steps="tourSteps" :mask="true" :next-button-props="{ children: '下一步' }"
     :prev-button-props="{ children: '上一步' }" :finish-button-props="{ children: '完成' }" @finish="handleFinish"
     @close="handleFinish" />
-    
+
 </template>
 
 <script setup lang="ts">
