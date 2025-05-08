@@ -42,6 +42,38 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'AI简历 - 登录' }
   },
   {
+    path:'/interview',
+    name:'interview',
+    component:()=>import('@/views/interview/index.vue'),
+    meta:{title:'AI简历 - 面试'},
+    children:[
+      {
+        path:'/interview/setting',
+        name:'interviewSettings',
+        component:()=>import('@/views/interview/components/setting.vue'),
+      }
+    ,
+    {
+      path:'/interview/room',
+      name:'interviewRoom',
+      component:()=>import('@/views/interview/components/room.vue'),
+      meta: { hideLayout: true,hideThemeSwitcher: true  }, // 隐藏全局布局
+
+    },
+    {
+      path:'/interview/report',
+      name:'interviewReport',
+      component:()=>import('@/views/interview/components/report.vue'),
+    }
+    ,
+    {
+      path:'/interview/manage',
+      name:'interviewManage',
+      component:()=>import('@/views/interview/components/manage.vue'),
+    }
+    ]
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')

@@ -30,7 +30,7 @@ onMounted(async () => {
 <template>
   <narrow-screen v-if="showNarrowScreen" />
   <template v-else>
-    <Header />
+    <Header v-if="!$route.meta.hideLayout" />
     <a-config-provider :theme="{
       token: {
         colorPrimary: settingsStore.theme,
@@ -42,7 +42,7 @@ onMounted(async () => {
         </keep-alive>
       </router-view>
     </a-config-provider>
-    <ThemeSwitcher />
+    <ThemeSwitcher  v-if="!$route.meta.hideThemeSwitcher"/>
   </template>
 </template>
 
