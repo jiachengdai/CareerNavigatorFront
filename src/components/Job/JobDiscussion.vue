@@ -4,7 +4,7 @@
 
     <!-- 发布区域 -->
     <div class="publish-container">
-      <h3>{{ isReplying ? '回复评论' : '发布新主题' }}</h3>
+      <h3>{{ isReplying ? getReplyInfo(currentParentId) : '发布新主题' }}</h3>
       <el-form
           ref="formRef"
           :model="form"
@@ -38,8 +38,16 @@
       </el-form>
     </div>
 
+    <!-- 加载中状态 -->
+    <div v-if="isLoading" class="loading">
+      <el-skeleton :rows="5" animated />
+    </div>
+
     <!-- 评论列表 -->
-    <div class="comment-list">
+    <div v-else class="comment-list">
+      <div v-if="comments.length === 0" class="no-data">
+        暂无讨论主题，成为第一个发言的人吧！
+      </div>
       <div
           v-for="comment in comments"
           :key="comment.id"
@@ -54,7 +62,7 @@
         <div class="comment-content">
           {{ comment.content }}
           <div class="meta">
-            <span class="author">{{ comment.author }}</span>
+            <span class="author">{{ comment.userId }}</span>
             <span class="time">{{ formatTime(comment.createTime) }}</span>
             <el-button
                 type="text"
@@ -65,7 +73,8 @@
             <el-button
                 type="text"
                 class="delete-btn"
-                @click="handleDelete(comment.id)"
+                v-if="accountStore.info && accountStore.info.username === comment.userId"
+                @click="handleDelete(comment.id, comment.userId)"
             >
               删除
             </el-button>
@@ -85,18 +94,30 @@
             <div class="comment-content">
               {{ child.content }}
               <div class="meta">
-                <span class="author">{{ child.author }}</span>
+                <span class="author">{{ child.userId }}</span>
                 <span class="time">{{ formatTime(child.createTime) }}</span>
                 <el-button
                     type="text"
+                    @click="showReplyForm(comment.id)"
+                >
+                  回复
+                </el-button>
+                <el-button
+                    type="text"
                     class="delete-btn"
-                    @click="handleDelete(child.id)"
+                    v-if="accountStore.info && accountStore.info.username === child.userId"
+                    @click="handleDelete(child.id, child.userId)"
                 >
                   删除
                 </el-button>
               </div>
             </div>
           </div>
+        </div>
+        
+        <!-- 回复数量提示 -->
+        <div v-if="comment.children?.length" class="reply-count">
+          共 {{ comment.children.length }} 条回复
         </div>
       </div>
     </div>
@@ -106,14 +127,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
 import dayjs from 'dayjs'
+import { publishDiscussionService, getDiscussionsService, deleteDiscussionService } from '@/api/discussion'
+import { useAccountInfoStore } from '@/store/account'
+
+// 获取用户信息
+const accountStore = useAccountInfoStore();
 
 // 表单数据
 const form = ref({
   parentId: 0,
   title: '',
-  content: ''
+  content: '',
+  userId: accountStore.info?.username || ''
 })
 const formRef = ref()
 const isReplying = ref(false)
@@ -133,6 +159,8 @@ const rules = {
 
 // 评论数据
 const comments = ref([])
+// 加载状态
+const isLoading = ref(false)
 
 // 初始化加载
 onMounted(async () => {
@@ -141,78 +169,190 @@ onMounted(async () => {
 
 // 加载评论
 const loadComments = async (parentId) => {
+  isLoading.value = true;
   try {
-    const res = await axios.get(`/discussions/list/${parentId}`)
-    comments.value = res.data.map(item => ({
-      ...item,
-      createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm')
-    }))
+    const response = await getDiscussionsService(parentId);
+    
+    // 检查并处理返回数据
+    let discussionData = [];
+    if (response && response.data) {
+      discussionData = response.data;
+    } else if (response && response.code === 0 && response.data) {
+      discussionData = response.data;
+    }
+    
+    // 处理主题帖和回复关系
+    if (parentId === 0) {
+      // 加载主题帖
+      const mainPosts = discussionData.filter(item => item.parentId === 0);
+      
+      // 为每个主题帖添加子评论属性
+      comments.value = await Promise.all(mainPosts.map(async post => {
+        // 加载每个主题帖的回复
+        try {
+          const repliesResponse = await getDiscussionsService(post.id);
+          let replies = [];
+          
+          if (repliesResponse && repliesResponse.data) {
+            replies = repliesResponse.data;
+          } else if (repliesResponse && repliesResponse.code === 0 && repliesResponse.data) {
+            replies = repliesResponse.data;
+          }
+          
+          // 格式化时间
+          replies = replies.map(reply => ({
+            ...reply,
+            createTime: dayjs(reply.createTime).format('YYYY-MM-DD HH:mm')
+          }));
+          
+          return {
+            ...post,
+            createTime: dayjs(post.createTime).format('YYYY-MM-DD HH:mm'),
+            children: replies
+          };
+        } catch (err) {
+          console.error(`获取评论回复失败(ID:${post.id}):`, err);
+          return {
+            ...post,
+            createTime: dayjs(post.createTime).format('YYYY-MM-DD HH:mm'),
+            children: []
+          };
+        }
+      }));
+    } else {
+      // 如果是加载特定主题的回复，直接返回
+      comments.value = discussionData.map(item => ({
+        ...item,
+        createTime: dayjs(item.createTime).format('YYYY-MM-DD HH:mm')
+      }));
+    }
   } catch (error) {
-    ElMessage.error('加载失败')
+    console.error('加载评论失败:', error);
+    ElMessage.error('加载评论失败，请稍后重试');
+  } finally {
+    isLoading.value = false;
   }
 }
 
+// 回复相关信息显示
+const getReplyInfo = (parentId) => {
+  // 查找被回复的评论
+  const findComment = (comments, id) => {
+    for (const comment of comments) {
+      if (comment.id === id) return comment;
+      if (comment.children) {
+        const found = findComment(comment.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  
+  const parentComment = findComment(comments.value, parentId);
+  return parentComment ? `回复 ${parentComment.userId} 的评论` : '回复评论';
+};
+
 // 提交表单
 const handleSubmit = async () => {
+  // 检查用户是否登录
+  if (!accountStore.info || !accountStore.info.username) {
+    ElMessage.warning('请先登录后再发布评论');
+    return;
+  }
+  
   try {
-    await formRef.value.validate()
-
+    await formRef.value.validate();
+    
+    // 确保表单中包含userId（使用username的值）
+    form.value.userId = accountStore.info.username;
+    
     const payload = {
       ...form.value,
       parentId: currentParentId.value
+    };
+
+    const response = await publishDiscussionService(payload);
+    
+    if (response && (response.code === 0 || response.data)) {
+      ElMessage.success(isReplying.value ? '回复成功' : '发布成功');
+      resetForm();
+      await loadComments(0);
+    } else {
+      ElMessage.error(response?.message || '发布失败，请稍后重试');
     }
-
-    await axios.post('/discussions/publish', payload)
-
-    ElMessage.success(isReplying.value ? '回复成功' : '发布成功')
-    resetForm()
-    await loadComments(0)
   } catch (error) {
-    if (error.response?.data?.code === 1) {
-      ElMessage.error(error.response.data.message)
-    }
+    console.error('发布评论失败:', error);
+    ElMessage.error(error.response?.data?.message || '发布失败，请稍后重试');
   }
 }
 
 // 显示回复表单
 const showReplyForm = (parentId) => {
-  isReplying.value = true
-  currentParentId.value = parentId
-  form.value.parentId = parentId
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  // 检查用户是否登录
+  if (!accountStore.info || !accountStore.info.username) {
+    ElMessage.warning('请先登录后再回复评论');
+    return;
+  }
+  
+  isReplying.value = true;
+  currentParentId.value = parentId;
+  form.value.parentId = parentId;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 取消回复
+const cancelReply = () => {
+  resetForm();
 }
 
 // 删除评论
-const handleDelete = async (id) => {
+const handleDelete = async (id, commentUserId) => {
+  // 检查用户是否登录
+  if (!accountStore.info || !accountStore.info.username) {
+    ElMessage.warning('请先登录后再删除评论');
+    return;
+  }
+  
+  // 检查是否有权限删除（是否为评论作者）
+  const currentUserId = accountStore.info.username;
+  if (commentUserId !== currentUserId) {
+    ElMessage.warning('只能删除自己发布的评论');
+    return;
+  }
+  
   try {
     await ElMessageBox.confirm('确认删除该评论？', '警告', {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
       type: 'warning'
-    })
+    });
 
-    const res = await axios.delete(`/discussions/delete/${id}`)
-    if (res.data.code === 0) {
-      ElMessage.success('删除成功')
-      await loadComments(0)
+    const response = await deleteDiscussionService(id);
+    
+    if (response && (response.code === 0 || response.data)) {
+      ElMessage.success('删除成功');
+      await loadComments(0);
+    } else {
+      ElMessage.error(response?.message || '删除失败，请稍后重试');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.message || '删除失败')
+      console.error('删除评论失败:', error);
+      ElMessage.error(error.response?.data?.message || '删除失败，请稍后重试');
     }
   }
 }
 
 // 重置表单
 const resetForm = () => {
-  formRef.value.resetFields()
-  isReplying.value = false
-  currentParentId.value = 0
+  formRef.value.resetFields();
+  isReplying.value = false;
+  currentParentId.value = 0;
 }
 
 // 时间格式化
 const formatTime = (time) => {
-  return dayjs(time).format('YYYY-MM-DD HH:mm')
+  return dayjs(time).format('YYYY-MM-DD HH:mm');
 }
 </script>
 
@@ -221,6 +361,20 @@ const formatTime = (time) => {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.loading {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.no-data {
+  padding: 40px 0;
+  text-align: center;
+  color: #909399;
+  font-size: 14px;
 }
 
 .post-title {
@@ -241,6 +395,20 @@ const formatTime = (time) => {
   margin-left: 30px;
   border-left: 2px solid #eee;
   padding-left: 15px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.sub-comment {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #eee;
+}
+
+.sub-comment:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .meta {
@@ -251,6 +419,7 @@ const formatTime = (time) => {
 
 .meta .author {
   margin-right: 15px;
+  font-weight: bold;
 }
 
 .delete-btn {
@@ -259,5 +428,20 @@ const formatTime = (time) => {
 
 .comment-content {
   line-height: 1.6;
+}
+
+.publish-container {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reply-count {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 10px;
+  text-align: right;
 }
 </style>

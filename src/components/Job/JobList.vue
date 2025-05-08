@@ -22,31 +22,53 @@
           v-for="job in filteredJobs"
           :key="job.id"
           class="job-card-square"
-          @click="viewJobDetails(job)"
       >
-        <div class="job-header">
+        <div class="job-header" @click="viewJobDetails(job)">
           <div class="job-location">{{ job.location }}</div>
           <div class="job-title">{{ job.jobname }}</div>
         </div>
-        <div class="job-salary" style="color: #ff4400; font-size: 18px; font-weight: bold;">
+        <div class="job-salary" style="color: #ff4400; font-size: 18px; font-weight: bold;" @click="viewJobDetails(job)">
           {{ job.salary }} 元/月
         </div>
-        <div class="job-basic-info">
+        <div class="job-basic-info" @click="viewJobDetails(job)">
           <div class="job-company">{{ job.company }}</div>
           <div class="job-experience-edu">
             {{ job.experience }}｜{{ job.education }}｜{{ job.jobtype }}
           </div>
         </div>
-        <div class="job-publishdate">发布时间：{{ job.publishdate }}</div>
+        <div class="job-publishdate" @click="viewJobDetails(job)">发布时间：{{ job.publishdate }}</div>
+        
+        <!-- 添加投递简历按钮 -->
+        <div class="job-actions">
+          <el-button type="primary" size="small" @click.stop="applyJob(job)">投递简历</el-button>
+        </div>
       </div>
     </div>
+    
+    <!-- 投递成功/失败提示对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      width="30%"
+      center
+    >
+      <span>{{ dialogMessage }}</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { getAllJobsService } from '@/api/job';
+import { createJobApplyService } from '@/api/jobApply';
+import { useAccountInfoStore } from '@/store/account';
 
 // 存储岗位数据
 const jobs = ref([]);
@@ -58,13 +80,18 @@ const isLoading = ref(true);
 const error = ref(null);
 // 路由实例
 const router = useRouter();
+// 账户信息存储
+const accountStore = useAccountInfoStore();
+// 对话框控制
+const dialogVisible = ref(false);
+const dialogTitle = ref('');
+const dialogMessage = ref('');
 
 // 生命周期函数：组件挂载后调用后端接口获取岗位数据
 onMounted(async () => {
   try {
-    // 调用后端接口获取岗位数据（请根据实际地址调整接口路径）
-    // 接口返回数据应包含字段：id, jobname, company, salary, location, experience, education, jobtype, publishdate 等
-    const response = await axios.get('/api/jobs');
+    // 使用封装的API服务获取岗位数据
+    const response = await getAllJobsService();
     jobs.value = response.data;
   } catch (err) {
     error.value = err;
@@ -88,6 +115,44 @@ const filteredJobs = computed(() => {
 // 点击岗位卡片跳转到详情页
 const viewJobDetails = (job) => {
   router.push({ name: 'JobDetails', params: { id: job.id } });
+};
+
+// 投递简历函数
+const applyJob = async (job) => {
+  // 检查用户是否登录
+  if (!accountStore.info || !accountStore.info.username) {
+    dialogTitle.value = '投递失败';
+    dialogMessage.value = '请先登录后再投递简历';
+    dialogVisible.value = true;
+    return;
+  }
+  
+  try {
+    // 准备投递数据
+    const currentDate = new Date();
+    const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
+    
+    const jobApplyData = {
+      username: accountStore.info.username,
+      jobid: job.id,
+      applydate: formattedDate,
+      status: '已投递' // 修改为已投递状态
+    };
+    
+    // 调用API投递简历
+    const response = await createJobApplyService(jobApplyData);
+    
+    // 投递成功提示
+    dialogTitle.value = '投递成功';
+    dialogMessage.value = `您已成功投递"${job.jobname}"职位的简历，请等待企业回复`;
+    dialogVisible.value = true;
+  } catch (err) {
+    console.error('投递简历失败:', err);
+    // 投递失败提示
+    dialogTitle.value = '投递失败';
+    dialogMessage.value = err.response?.data?.message || '投递简历失败，请稍后重试';
+    dialogVisible.value = true;
+  }
 };
 </script>
 
@@ -122,7 +187,7 @@ const viewJobDetails = (job) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 320px; /* 调整高度适配内容 */
+  height: 350px; /* 略微增加高度以容纳按钮 */
   position: relative;
 }
 
@@ -166,5 +231,11 @@ const viewJobDetails = (job) => {
   color: #999;
   font-size: 12px;
   margin-top: 10px;
+}
+
+/* 新增投递简历按钮样式 */
+.job-actions {
+  margin-top: 15px;
+  text-align: center;
 }
 </style>
