@@ -9,9 +9,6 @@
         <el-tab-pane label="简历管理" name="manage">
           <ResumeManager />
         </el-tab-pane>
-        <el-tab-pane label="简历分析" name="analysis">
-          <ResumeAnalysis />
-        </el-tab-pane>
         <el-tab-pane label="报告管理" name="reports">
           <ReportManager />
         </el-tab-pane>
@@ -22,9 +19,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import ResumeManager from '../../components/resume/ResumeManager.vue';
-import ResumeAnalysis from '../../components/resume/ResumeAnalysis.vue';
-import ReportManager from '../../components/resume/ReportManager.vue';
+import ResumeManager from '../../components/Resume/ResumeManager.vue';
+import ReportManager from '../../components/Resume/ReportManager.vue';
 
 const activeTab = ref('manage');
 </script>

@@ -9,9 +9,6 @@
         <el-tab-pane label="岗位列表" name="list">
           <JobList />
         </el-tab-pane>
-        <el-tab-pane label="交流讨论区" name="discussion">
-          <JobDiscussion />
-        </el-tab-pane>
         <el-tab-pane label="职位追踪" name="tracking">
           <JobTracking />
         </el-tab-pane>
@@ -23,7 +20,6 @@
 <script setup>
 import { ref } from 'vue';
 import JobList from '../../components/Job/JobList.vue';
-import JobDiscussion from '../../components/Job/JobDiscussion.vue';
 import JobTracking from '../../components/Job/JobTracking.vue';
 
 const activeTab = ref('list');

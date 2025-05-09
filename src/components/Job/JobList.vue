@@ -1,11 +1,11 @@
 <template>
   <div class="job-list">
-    <h2>岗位列表</h2>
+    <h2 class="job-list-title">岗位列表</h2>
     <el-input
         v-model="searchQuery"
         placeholder="搜索岗位..."
         prefix-icon="el-icon-search"
-        style="margin-bottom: 20px; width: 300px;"
+        class="search-input"
     ></el-input>
 
     <!-- 加载状态显示 -->
@@ -23,24 +23,26 @@
           :key="job.id"
           class="job-card-square"
       >
-        <div class="job-header" @click="viewJobDetails(job)">
-          <div class="job-location">{{ job.location }}</div>
-          <div class="job-title">{{ job.jobname }}</div>
-        </div>
-        <div class="job-salary" style="color: #ff4400; font-size: 18px; font-weight: bold;" @click="viewJobDetails(job)">
-          {{ job.salary }} 元/月
-        </div>
-        <div class="job-basic-info" @click="viewJobDetails(job)">
-          <div class="job-company">{{ job.company }}</div>
-          <div class="job-experience-edu">
-            {{ job.experience }}｜{{ job.education }}｜{{ job.jobtype }}
+        <div class="job-card-content" @click="viewJobDetails(job)">
+          <div class="job-left">
+            <div class="job-title">{{ job.jobname }}</div>
+            <div class="job-company">{{ job.company }}</div>
+            <div class="job-tags">
+              <span class="job-tag">{{ job.experience }}</span>
+              <span class="job-tag">{{ job.education }}</span>
+              <span class="job-tag">{{ job.jobtype }}</span>
+              <span class="job-tag location">{{ job.location }}</span>
+            </div>
+            <div class="job-publishdate">发布时间：{{ job.publishdate }}</div>
           </div>
-        </div>
-        <div class="job-publishdate" @click="viewJobDetails(job)">发布时间：{{ job.publishdate }}</div>
-        
-        <!-- 添加投递简历按钮 -->
-        <div class="job-actions">
-          <el-button type="primary" size="small" @click.stop="applyJob(job)">投递简历</el-button>
+          
+          <div class="job-right">
+            <div class="job-salary">{{ job.salary }} 元/月</div>
+            <!-- 添加投递简历按钮 -->
+            <div class="job-actions">
+              <el-button type="primary" size="small" @click.stop="applyJob(job)" class="apply-btn">投递简历</el-button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -158,84 +160,194 @@ const applyJob = async (job) => {
 
 <style scoped>
 .job-list {
-  padding: 20px;
+  padding: 30px;
+  background-color: #f9fafc;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.job-list-title {
+  margin-bottom: 25px;
+  color: #303133;
+  text-align: center;
+  font-size: 28px;
+  position: relative;
+}
+
+.job-list-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background-color: #409eff;
+  margin: 10px auto 0;
+}
+
+.search-input {
+  margin-bottom: 25px;
+  width: 400px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .loading,
 .error {
-  padding: 20px;
+  padding: 30px;
   text-align: center;
   color: #666;
+  font-size: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
 }
 
 .error {
-  color: #f5222d;
+  color: #f56c6c;
+  border-left: 4px solid #f56c6c;
 }
 
 .job-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
   gap: 20px;
 }
 
 .job-card-square {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 15px;
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  padding: 18px;
   cursor: pointer;
-  transition: transform 0.2s;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 350px; /* 略微增加高度以容纳按钮 */
-  position: relative;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 }
 
 .job-card-square:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: #dcdfe6;
 }
 
-.job-header {
+.job-card-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
 }
 
-.job-location {
-  color: #666;
-  font-size: 14px;
+.job-left {
+  flex: 1;
+  overflow: hidden;
+  padding-right: 15px;
+}
+
+.job-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  min-width: 120px;
 }
 
 .job-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
-}
-
-.job-basic-info {
-  margin-top: 10px;
+  color: #303133;
+  margin-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .job-company {
-  color: #666;
-  margin-bottom: 5px;
+  color: #409eff;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.job-experience-edu {
-  color: #999;
-  font-size: 14px;
+.job-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.job-tag {
+  color: #606266;
+  font-size: 12px;
+  background-color: #f5f7fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.job-tag.location {
+  color: #409eff;
+  background-color: #ecf5ff;
 }
 
 .job-publishdate {
-  color: #999;
+  color: #909399;
   font-size: 12px;
-  margin-top: 10px;
 }
 
-/* 新增投递简历按钮样式 */
+.job-salary {
+  color: #ff4400;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+  margin-bottom: 40px;
+}
+
 .job-actions {
-  margin-top: 15px;
-  text-align: center;
+  text-align: right;
+}
+
+.apply-btn {
+  width: 110px;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: all 0.3s;
+  height: 32px;
+  padding: 0;
+}
+
+.apply-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.5);
+}
+
+@media (max-width: 768px) {
+  .job-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  .job-card-content {
+    flex-direction: column;
+  }
+  
+  .job-left {
+    padding-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .job-right {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .job-salary {
+    margin-bottom: 0;
+  }
 }
 </style>

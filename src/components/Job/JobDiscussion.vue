@@ -17,7 +17,7 @@
             prop="title"
             label="主题标题"
         >
-          <el-input v-model="form.title" />
+          <el-input v-model="form.title" placeholder="请输入标题..." />
         </el-form-item>
 
         <el-form-item prop="content" label="内容">
@@ -78,6 +78,11 @@
             >
               删除
             </el-button>
+            
+            <!-- 回复数量提示 -->
+            <div v-if="comment.children?.length" class="reply-count">
+              共 {{ comment.children.length }} 条回复
+            </div>
           </div>
         </div>
 
@@ -114,11 +119,6 @@
             </div>
           </div>
         </div>
-        
-        <!-- 回复数量提示 -->
-        <div v-if="comment.children?.length" class="reply-count">
-          共 {{ comment.children.length }} 条回复
-        </div>
       </div>
     </div>
   </div>
@@ -139,7 +139,7 @@ const form = ref({
   parentId: 0,
   title: '',
   content: '',
-  userId: accountStore.info?.username || ''
+  username: accountStore.info?.username || ''
 })
 const formRef = ref()
 const isReplying = ref(false)
@@ -379,30 +379,43 @@ const formatTime = (time) => {
 
 .post-title {
   color: #1a1a1a;
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 20px;
+  margin-bottom: 15px;
+  border-left: 4px solid #409eff;
+  padding-left: 10px;
+  line-height: 1.4;
 }
 
 .comment-item {
-  margin-bottom: 20px;
-  padding: 15px;
+  margin-bottom: 25px;
+  padding: 20px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #f0f0f0;
+}
+
+.comment-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .sub-comments {
   margin-left: 30px;
-  border-left: 2px solid #eee;
-  padding-left: 15px;
+  border-left: 3px solid #e6f1fc;
+  padding-left: 20px;
   margin-top: 15px;
   margin-bottom: 10px;
+  background-color: #f9fafc;
+  padding: 15px 15px 5px 20px;
+  border-radius: 0 8px 8px 0;
 }
 
 .sub-comment {
   margin-bottom: 15px;
   padding-bottom: 15px;
-  border-bottom: 1px dashed #eee;
+  border-bottom: 1px dashed #e8e8e8;
 }
 
 .sub-comment:last-child {
@@ -412,14 +425,28 @@ const formatTime = (time) => {
 }
 
 .meta {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #666;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .meta .author {
-  margin-right: 15px;
+  color: #409eff;
   font-weight: bold;
+  font-size: 13px;
+}
+
+.meta .time {
+  color: #909399;
+  font-size: 12px;
+}
+
+.meta .el-button {
+  padding: 4px 8px;
+  height: auto;
+  font-size: 12px;
 }
 
 .delete-btn {
@@ -427,15 +454,27 @@ const formatTime = (time) => {
 }
 
 .comment-content {
-  line-height: 1.6;
+  line-height: 1.8;
+  color: #303133;
+  word-break: break-word;
 }
 
 .publish-container {
-  margin-bottom: 30px;
-  padding: 20px;
+  margin-bottom: 35px;
+  padding: 25px;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e6e6e6;
+}
+
+.publish-container h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #303133;
+  font-size: 18px;
+  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 10px;
 }
 
 .reply-count {
@@ -443,5 +482,26 @@ const formatTime = (time) => {
   color: #909399;
   margin-top: 10px;
   text-align: right;
+  background-color: #f5f7fa;
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.job-discussion h2 {
+  margin-bottom: 25px;
+  color: #303133;
+  text-align: center;
+  position: relative;
+}
+
+.job-discussion h2:after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background-color: #409eff;
+  margin: 10px auto 0;
 }
 </style>
