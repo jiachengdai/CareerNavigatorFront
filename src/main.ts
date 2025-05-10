@@ -13,7 +13,9 @@ import './assets/styles/dark.css';
 // 持久化pinia
 import piniaPersist from 'pinia-plugin-persistedstate'
 import lazyLoad from './directives/lazyLoad';
-// import { ConfigProvider } from 'ant-design-vue';
+// 引入Ant Design Vue的中文语言包
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import { ConfigProvider } from 'ant-design-vue';
 // svg插件配置代码
 // import 'virtual:svg-icons-register'
 
@@ -26,5 +28,7 @@ app.use(router);
 app.use(pinia);
 app.directive('lazy', lazyLoad);
 app.use(Antd);
-app.use(ElementPlus)
+app.use(ElementPlus);
+// 全局配置中文
+app.config.globalProperties.$locale = zhCN;
 app.mount('#app');

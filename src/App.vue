@@ -30,12 +30,12 @@ onMounted(async () => {
 <template>
   <narrow-screen v-if="showNarrowScreen" />
   <template v-else>
-    <Header v-if="!$route.meta.hideLayout" />
+    <Header v-if="!$route.meta.hideLayout && !$route.meta.hideHeader" />
     <a-config-provider :theme="{
       token: {
         colorPrimary: settingsStore.theme,
       },
-    }">
+    }" :locale="$locale">
       <router-view v-slot="{ Component }">
         <keep-alive include="aiDeep">
           <component :is="Component" />
