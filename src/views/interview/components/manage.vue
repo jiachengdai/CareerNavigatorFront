@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1 class="title">我的模拟面试记录</h1>
+    <h1 class="title">📋 我的模拟面试记录</h1>
     <div class="scroll-area">
       <div v-if="interviewRecords.length == 0" class="no-records">
         <p class="no-records-text">还没有面试记录哦😶‍🌫️QAQ</p>
@@ -11,14 +11,22 @@
       <div class="grid">
         <div v-for="record in interviewRecords" :key="record.id" class="card">
           <div class="card-content">
-            <div class="position">{{ record.jobname }}</div>
-            <div class="date">面试时间：{{ record.starttime }}</div>
-            <div class="score">评分：{{ record.score }}</div>
+            <div class="position" style="color: #1f2937; margin-bottom: 20px">
+              💼 {{ record.jobname }}
+            </div>
+            <div class="date" style="color: #6b7280">
+              🕒 面试时间：{{ record.starttime }}
+            </div>
+            <div class="score" style="color: #10b981">
+              ⭐ 评分：{{ record.totalscore }}
+            </div>
           </div>
           <div class="actions">
-            <button class="button outline" @click="toDetail(record.id)">查看报告</button>
+            <button class="button outline" @click="toDetail(record.id)">
+              📄 查看报告
+            </button>
             <button class="button destructive" @click="deleteRecord(record.id)">
-              删除
+              🗑️ 删除
             </button>
           </div>
         </div>
@@ -66,9 +74,9 @@ const toDetail = (id) => {
 .container {
   padding: 24px;
 
-  max-width: 800px;
+  width: 1200px;
   margin: 0 auto;
-  background-color: #f9fafb; /* 添加背景颜色 */
+  background-color: #f9fafb;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-height: 85vh;
@@ -87,11 +95,6 @@ const toDetail = (id) => {
   padding-right: 16px;
 }
 
-.grid {
-  display: grid;
-  gap: 16px;
-}
-
 .card {
   display: flex;
   justify-content: space-between;
@@ -102,6 +105,7 @@ const toDetail = (id) => {
   background-color: #ffffff; /* 列表项背景颜色 */
   color: #374151; /* 列表项文字颜色 */
   transition: transform 0.2s, box-shadow 0.2s; /* 添加过渡效果 */
+  margin-bottom: 16px; /* 列表项之间的间距 */
 }
 
 .card:hover {

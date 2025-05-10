@@ -3,6 +3,8 @@ import { useTokenStore } from '@/store/token';
 import { useAccountInfoStore } from '@/store/account';
 import { getCurrentUserInfo } from '@/api/account';
 
+import JobList from '../components/Job/JobList.vue';
+import JobDetails from '../components/Job/JobDetails.vue';
 
 // 定义路由
 const routes: Array<RouteRecordRaw> = [
@@ -16,6 +18,14 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/resume/index.vue'),
     meta: { title: 'AI简历 - 简历制作' }
   },
+  {
+    path:'/welcome',
+    name:'welcome',
+    component:()=>import('@/views/welCome/index.vue'),
+     
+    meta: { hideLayout: true,hideThemeSwitcher: true  }, // 隐藏全局布局
+
+  }, 
   {
     path: '/resumeDesign',
     name: 'resumeDesign',
@@ -81,7 +91,12 @@ const routes: Array<RouteRecordRaw> = [
       path:'/interview/manage',
       name:'interviewManage',
       component:()=>import('@/views/interview/components/manage.vue'),
-    }
+    },
+    {
+      path:'/interview/test',
+      name:'interviewTest',
+      component:()=>import('@/views/interview/components/test.vue'),
+    }, 
     ]
   },
   {
@@ -100,7 +115,18 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/404.vue')
+  },
+  {
+    path: '/job-list',
+    name: 'JobList',
+    component: JobList
+  },
+  {
+    path: '/job-details/:id',
+    name: 'JobDetails',
+    component: JobDetails
   }
+
 ];
 
 // 创建路由实例

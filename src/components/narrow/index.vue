@@ -1,11 +1,15 @@
 <template>
   <div class="narrow-screen">
     <div class="content">
-      <a-result status="warning" title="暂不支持移动端访问" sub-title="抱歉，暂不支持移动端访问，请使用电脑访问以获得最佳体验">
+      <a-result
+        status="warning"
+        title="暂不支持移动端访问"
+        sub-title="抱歉，暂不支持移动端访问，请使用电脑访问以获得最佳体验"
+      >
         <template #icon>
           <laptop-outlined class="custom-icon" />
         </template>
-        <template #extra>
+        <!-- <template #extra>
           <div class="github-section">
             <p class="preview-text">您可以在 GitHub 查看项目预览截图：</p>
             <a href="https://github.com/weidong-repo/AIResume" target="_blank" class="github-link">
@@ -13,14 +17,14 @@
               <span>AIResume</span>
             </a>
           </div>
-        </template>
+        </template> -->
       </a-result>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { LaptopOutlined, GithubOutlined } from '@ant-design/icons-vue';
+import { LaptopOutlined, GithubOutlined } from "@ant-design/icons-vue";
 </script>
 
 <style scoped>

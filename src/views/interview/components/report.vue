@@ -10,13 +10,16 @@
       <!-- 总体评分 -->
       <div>
         <h2>⭐ 面试总结评分</h2>
-        <div class="score">82 / 100</div>
-        <p>评价等级：良好，具备一定岗位胜任力</p>
+        <div class="score">{{ detailForm.totalscore }} / 100</div>
+        <p v-if="detailForm.totalscore > 90">评价等级：优秀，具备较强岗位胜任力</p>
+        <p v-else-if="detailForm.totalscore > 70">评价等级：良好，具备一定岗位胜任力</p>
+        <p v-else-if="detailForm.totalscore > 50">评价等级：中等，具备一定基础素质</p>
+        <p v-else>评价等级：较差，需加强基础素质能力</p>
       </div>
       <!-- 配置信息概览 -->
       <div>
         <h2>📌 面试配置信息概览</h2>
-        <div class="grid">
+        <div class="grid" style="font-size: 18px">
           <div>面试类型：{{ detailForm.interviewtype }}</div>
           <div>岗位名称：{{ detailForm.jobname }}</div>
           <div>面试强度：{{ detailForm.intensity }}</div>
@@ -34,19 +37,28 @@
           <div>
             表达能力
             <div class="progress-bar">
-              <div class="progress-bar blue" style="width: 95%"></div>
+              <div
+                class="progress-bar blue"
+                :style="{ width: detailForm.prescore + '%' }"
+              ></div>
             </div>
           </div>
           <div>
             沟通逻辑
             <div class="progress-bar">
-              <div class="progress-bar light-blue" style="width: 78%"></div>
+              <div
+                class="progress-bar light-blue"
+                :style="{ width: detailForm.logicscore + '%' }"
+              ></div>
             </div>
           </div>
           <div>
             应变能力
             <div class="progress-bar">
-              <div class="progress-bar yellow" style="width: 68%"></div>
+              <div
+                class="progress-bar yellow"
+                :style="{ width: detailForm.changescore + '%' }"
+              ></div>
             </div>
           </div>
         </div>
@@ -55,48 +67,48 @@
       <!-- 技术掌握分析 -->
       <div>
         <h2>💻 技术掌握情况分析</h2>
-        <ul>
+        <!-- <ul>
           <li>熟悉 Vue3 组件通信及生命周期管理</li>
           <li>掌握基本 JavaScript 异步编程（Promise/async-await）</li>
           <li>对 RESTful API 使用熟练，能完成前后端联调</li>
           <li>算法题思考清晰但表达略有迟疑</li>
-        </ul>
+        </ul> -->
+        <div
+          style="font-size: 18px; line-height: 1.5"
+          v-html="detailForm.skillssummary.replace(/•/g, '<br>•')"
+        ></div>
       </div>
 
       <!-- 面试能力提升建议 -->
       <div>
         <h2>📈 面试能力提升建议</h2>
-        <ul class="list-decimal">
+        <!-- <ul class="list-decimal">
           <li>加强行为题准备，提升回答的条理性与说服力</li>
           <li>练习口头表达，模拟真实面试场景下的节奏与自信</li>
           <li>刷题建议：LeetCode 中等难度每日一道，强化逻辑训练</li>
-        </ul>
+        </ul> -->
+        <div
+          style="font-size: 18px; line-height: 1.5"
+          v-html="detailForm.advice.replace(/•/g, '<br>•')"
+        ></div>
       </div>
 
       <!-- 面试交互复盘 -->
       <div>
         <h2>🔁 面试交互过程复盘</h2>
-        <div class="review">
-          <p><strong>Q1:</strong> 请简要介绍你最近做的一个项目？</p>
-          <p>
-            <strong>A:</strong>
-            我最近参与了一个志愿服务管理系统的开发，使用了Vue3和SpringBoot...
-          </p>
-          <hr />
-          <p><strong>Q2:</strong> 如何实现前后端的权限控制？</p>
-          <p>
-            <strong>A:</strong>
-            前端通过路由守卫拦截未授权页面，后端使用JWT+注解方式做权限判定...
-          </p>
+        <div class="review" style="font-size: 18px; line-height: 1.5">
+          <div v-for="(chat, index) in chatRecordList" :key="index">
+            <p v-if="chat.role == 'assistant'"><strong>面试官:</strong> {{ chat.msg }}</p>
+            <p v-else-if="chat.role == 'user'"><strong>用户:</strong> {{ chat.msg }}</p>
+            <hr v-if="index < chatRecordList.length - 1" />
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <style>
-body {
-  /* background-color: #f9fafb; */
-}
 .container {
   max-width: 72rem;
   margin: 0 auto;
@@ -184,21 +196,38 @@ ul.list-decimal {
   color: #3b82f6;
   text-decoration: none;
 }
+p {
+  font-size: 18px;
+}
 </style>
 <script setup lang="ts">
-import { getInterviewDetailService } from "@/api/interview";
+import { getInterviewDetailService, getInterviewChatService } from "@/api/interview";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useInterviewStore } from "@/store/interview.js";
 const interviewStore = useInterviewStore();
-const detailForm = ref({});
+const detailForm = ref({
+  advice: "",
+  skillssummary: "",
+});
+const chatRecordList = ref([]);
 const getDetail = async () => {
   let id = interviewStore.id;
-
   let result = await getInterviewDetailService(id);
+  console.log(result);
   detailForm.value = result.data;
 };
 onMounted(() => {
   getDetail();
+  getInterviewChat();
 });
+
+const getInterviewChat = async () => {
+  let id = interviewStore.id;
+
+  let result = await getInterviewChatService(id);
+  console.log(result);
+  chatRecordList.value = result.data;
+  console.log(chatRecordList.value);
+};
 </script>

@@ -2,22 +2,35 @@
   <header class="navbar">
     <nav>
       <ul>
-        <li><router-link to="/">
+        <li>
+          <router-link to="/">
             <SvgIcon iconName="resume" />
             简历制作
+
           </router-link></li>
+
+        <li><router-link to="/resumeDesign">简历助手
+        </router-link></li>
+
         <li ref="templateStore"><router-link to="/template">
+
             <SvgIcon iconName="templateStore" />
             模板市场
-          </router-link></li>
-        <li ref="setting"><router-link to="/aiDeep">
+          </router-link>
+        </li>
+        <li ref="setting">
+          <router-link to="/interview/setting">
             <SvgIcon iconName="ai" />
-            AI深度交流
-          </router-link></li>
-        <li ref="setting"><router-link to="/setting">
+            AI模拟面试
+          </router-link>
+        </li>
+        <li ref="setting">
+          <router-link to="/setting">
             <SvgIcon iconName="setting" />
-            网站配置
+
+            岗位求职
           </router-link></li>
+
         <li><router-link to="/user-management">
             <SvgIcon iconName="user" />
             用户管理
@@ -26,9 +39,12 @@
             <SvgIcon iconName="psychology" />
             性格测评
           </router-link></li>
+
         <li><router-link to="/resumeDesign">简历模板设计</router-link></li>
+
       </ul>
     </nav>
+ 
     
     <!-- 用户头像和下拉菜单 -->
     <div class="user-avatar-container">
@@ -64,12 +80,14 @@
         </template>
       </a-dropdown>
     </div>
+ 
   </header>
 
   <!-- 漫游式引导 -->
   <a-tour v-model:open="tourOpen" :steps="tourSteps" :mask="true" :next-button-props="{ children: '下一步' }"
     :prev-button-props="{ children: '上一步' }" :finish-button-props="{ children: '完成' }" @finish="handleFinish"
     @close="handleFinish" />
+ 
     
   <!-- 修改用户名对话框 -->
   <a-modal v-model:visible="usernameModalVisible" title="修改用户名" @ok="submitUsername" :confirmLoading="modalLoading"
@@ -111,6 +129,7 @@ import { useTokenStore } from "@/store/token";
 import { UserOutlined, LockOutlined, LogoutOutlined } from '@ant-design/icons-vue';
 import { changePasswordService, updateUsernameService, accountLogoutService } from '@/api/account';
 import type { TourProps } from 'ant-design-vue';
+ 
 
 const store = useResumeStore();
 const accountStore = useAccountInfoStore();
@@ -120,6 +139,7 @@ const setting = ref(null);
 const templateStore = ref(null);
 const tourOpen = ref(false); // 控制引导是否打开
 
+ 
 // 默认头像
 const defaultAvatar = 'https://api.dicebear.com/7.x/micah/svg?seed=user';
 
@@ -253,6 +273,7 @@ const handleViewProfile = () => {
 };
 
 const tourSteps: TourProps['steps'] = [
+ 
   {
     title: "网站配置",
     description: "请先进入网站配置，完善基本信息（否则无法使用大模型润色！）",
@@ -262,7 +283,7 @@ const tourSteps: TourProps['steps'] = [
     title: "选择模板",
     description: "然后进入模板市场，挑选适合你的简历模板。",
     target: () => templateStore.value,
-  }
+  },
 ];
 
 // 引导完成时的回调
