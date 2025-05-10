@@ -10,18 +10,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "@types/marked": "^6.0.0",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.8.4",
     "chroma-js": "^3.1.2",
+    "codemirror": "^5.65.19",
+    "codemirror-editor-vue3": "^2.8.0",
     "crypto-js": "^4.2.0",
     "element-plus": "^2.9.7",
+    "highlight.js": "^11.11.1",
     "html2pdf.js": "^0.10.2",
-    "marked": "^15.0.7",
+    "log4node": "^0.1.6",
+    "marked": "^15.0.11",
+    "marked-highlight": "^2.2.1",
+    "mic": "^2.1.2",
+    "node-record-lpcm16": "^1.0.1",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "vite-plugin-svg-icons": "^2.0.1",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "ws": "^7.1.2"
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.1",

@@ -12,6 +12,14 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: 'AI简历 - 简历制作' }
   },
   {
+    path:'/welcome',
+    name:'welcome',
+    component:()=>import('@/views/welCome/index.vue'),
+     
+    meta: { hideLayout: true,hideThemeSwitcher: true  }, // 隐藏全局布局
+
+  }, 
+  {
     path: '/resumeDesign',
     name: 'resumeDesign',
     component: () => import('@/views/resumeDesign/index.vue'),
@@ -70,7 +78,12 @@ const routes: Array<RouteRecordRaw> = [
       path:'/interview/manage',
       name:'interviewManage',
       component:()=>import('@/views/interview/components/manage.vue'),
-    }
+    },
+    {
+      path:'/interview/test',
+      name:'interviewTest',
+      component:()=>import('@/views/interview/components/test.vue'),
+    }, 
     ]
   },
   {
@@ -88,6 +101,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'JobDetails',
     component: JobDetails
   }
+
 ];
 
 // 创建路由实例
