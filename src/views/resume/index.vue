@@ -1,12 +1,16 @@
 <!-- 父组件代码 -->
 <template>
   <div class="resume">
-
     <!-- 左侧简历内容编辑组件 -->
     <div class="left">
       <div class="btn-group">
         <!-- 预览填充 -->
-        <a-popconfirm title="填充会覆盖当前数据，确定吗？" ok-text="确定" cancel-text="取消" @confirm="resumeStore.autoFillData">
+        <a-popconfirm
+          title="填充会覆盖当前数据，确定吗？"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="resumeStore.autoFillData"
+        >
           <template #icon><question-circle-outlined style="color: red" /></template>
           <a-button type="primary" ghost>
             <eye-outlined />
@@ -15,7 +19,12 @@
         </a-popconfirm>
 
         <!-- 清空数据 -->
-        <a-popconfirm title="确定要清空当前简历数据吗？" ok-text="清空" cancel-text="取消" @confirm="resumeStore.clearData">
+        <a-popconfirm
+          title="确定要清空当前简历数据吗？"
+          ok-text="清空"
+          cancel-text="取消"
+          @confirm="resumeStore.clearData"
+        >
           <template #icon><warning-outlined style="color: red" /></template>
           <a-button danger>
             <delete-outlined />
@@ -30,8 +39,12 @@
         </a-button>
 
         <!-- 导入按钮 -->
-        <a-upload v-model:fileList="fileList" :beforeUpload="handleFileUpload" :showUploadList="false"
-          accept="application/json">
+        <a-upload
+          v-model:fileList="fileList"
+          :beforeUpload="handleFileUpload"
+          :showUploadList="false"
+          accept="application/json"
+        >
           <a-button type="dashed">
             <upload-outlined />
             导入JSON
@@ -40,7 +53,6 @@
       </div>
 
       <resumeEdit />
-      
     </div>
     <!-- 右侧简历展示组件 -->
     <div class="right">
@@ -50,13 +62,13 @@
 </template>
 
 <script setup lang="ts">
-import resumeEdit from './components/resumeEdit.vue';
-import resumePreview from './components/resumePreview.vue';
+import resumeEdit from "./components/resumeEdit.vue";
+import resumePreview from "./components/resumePreview.vue";
 import { useResumeStore } from "../../store/useResumeStore";
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import type { UploadProps } from "ant-design-vue";
-import { ref } from 'vue';
+import { ref } from "vue";
 const resumeStore = useResumeStore();
 const fileList = ref<UploadProps["fileList"]>([]);
 
@@ -132,6 +144,5 @@ const handleFileUpload = (file: File) => {
   /* 去除a标签默认样式 */
 
   cursor: pointer;
-
 }
 </style>

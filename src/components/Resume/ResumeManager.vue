@@ -1,44 +1,15 @@
 <template>
   <div class="resume-manager">
-    <h2>简历管理</h2>
-    
-    <!-- 创建简历表单 -->
-    <div class="resume-form">
-      <h3>创建简历</h3>
-      <el-form :model="resumeForm" :rules="rules" ref="resumeFormRef" label-width="100px">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="resumeForm.title" placeholder="请输入简历标题"></el-input>
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="resumeForm.type" placeholder="请选择简历类型">
-            <el-option label="校园招聘" value="campus"></el-option>
-            <el-option label="社会招聘" value="social"></el-option>
-            <el-option label="实习招聘" value="intern"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="内容" prop="content">
-          <el-input 
-            v-model="resumeForm.content" 
-            type="textarea" 
-            :rows="10"
-            placeholder="请输入简历内容"
-          ></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitResume">保存简历</el-button>
-          <el-button type="success" @click="submitAnalysis">提交分析</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
     <!-- 简历列表 -->
     <div class="resume-list">
       <h3>我的简历</h3>
-      <el-table :data="resumes" style="width: 100%">
+      <el-table :data="resumes" style="width: 100%; min-height: 30vh; font-size: 15px">
         <el-table-column prop="title" label="标题"></el-table-column>
         <el-table-column prop="type" label="类型">
           <template #default="scope">
-            <el-tag :type="getTypeTagType(scope.row.type)">{{ getTypeLabel(scope.row.type) }}</el-tag>
+            <el-tag :type="getTypeTagType(scope.row.type)">{{
+              getTypeLabel(scope.row.type)
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createtime" label="创建时间">
@@ -46,11 +17,15 @@
             {{ formatDate(scope.row.createtime) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="220">
+        <el-table-column label="操作" width="240">
           <template #default="scope">
             <el-button size="small" @click="viewResume(scope.row)">查看</el-button>
-            <el-button size="small" type="primary" @click="analyzeResume(scope.row.id)">分析</el-button>
-            <el-button size="small" type="danger" @click="deleteResume(scope.row.id)">删除</el-button>
+            <el-button size="small" type="primary" @click="analyzeResume(scope.row.id)"
+              >AI简历评估</el-button
+            >
+            <el-button size="small" type="danger" @click="deleteResume(scope.row.id)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -62,13 +37,13 @@
       <div class="resume-detail">
         <p><strong>类型：</strong>{{ getTypeLabel(currentResume.type) }}</p>
         <p><strong>创建时间：</strong>{{ formatDate(currentResume.createtime) }}</p>
-        
+
         <!-- 分析结果 -->
         <div v-if="currentResume.analysis" class="analysis-section">
           <h4>分析结果</h4>
           <div class="analysis-content">{{ currentResume.analysis }}</div>
         </div>
-        
+
         <!-- 改进建议 -->
         <div v-if="currentResume.advice" class="advice-section">
           <h4>改进建议</h4>
@@ -80,7 +55,7 @@
             </ul>
           </div>
         </div>
-        
+
         <!-- 简历内容 -->
         <h4>简历内容</h4>
         <div class="resume-content">{{ currentResume.content }}</div>
@@ -90,12 +65,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed } from "vue";
 // 导入resume.js中的API函数
-import { createResumeService, assessResumeService, getResumeByIdService, getResumeListByUserService, deleteResumeService } from '@/api/resume';
+import {
+  createResumeService,
+  assessResumeService,
+  getResumeByIdService,
+  getResumeListByUserService,
+  deleteResumeService,
+} from "@/api/resume";
+import { getAssessmentService } from "@/api/resumeAssessment";
 // 导入账户信息store
-import { useAccountInfoStore } from '@/store/account';
-import { ElMessage } from 'element-plus';
+import { useAccountInfoStore } from "@/store/account";
+import { ElMessage } from "element-plus";
 
 // 获取用户信息
 const accountStore = useAccountInfoStore();
@@ -103,23 +85,19 @@ const accountStore = useAccountInfoStore();
 // 简历表单
 const resumeFormRef = ref(null);
 const resumeForm = reactive({
-  title: '',
-  type: '',
-  content: ''
+  title: "",
+  type: "",
+  content: "",
 });
 
 // 表单验证规则
 const rules = {
   title: [
-    { required: true, message: '请输入简历标题', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+    { required: true, message: "请输入简历标题", trigger: "blur" },
+    { min: 2, max: 50, message: "长度在 2 到 50 个字符", trigger: "blur" },
   ],
-  type: [
-    { required: true, message: '请选择简历类型', trigger: 'change' }
-  ],
-  content: [
-    { required: true, message: '请输入简历内容', trigger: 'blur' }
-  ]
+  type: [{ required: true, message: "请选择简历类型", trigger: "change" }],
+  content: [{ required: true, message: "请输入简历内容", trigger: "blur" }],
 };
 
 // 简历列表
@@ -131,13 +109,19 @@ const currentResume = ref({});
 
 // 格式化日期函数
 const formatDate = (dateStr) => {
-  if (!dateStr) return '暂无';
-  
+  if (!dateStr) return "暂无";
+
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr; // 如果转换失败，返回原字符串
-    
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(date.getMinutes()).padStart(2, "0")}`;
   } catch (e) {
     return dateStr;
   }
@@ -146,56 +130,60 @@ const formatDate = (dateStr) => {
 // 生成当前日期时间字符串
 const getCurrentDateTime = () => {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+    now.getDate()
+  ).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(
+    now.getMinutes()
+  ).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 };
 
 // 保存简历
 const submitResume = async () => {
   if (!accountStore.info?.username) {
-    ElMessage.warning('请先登录');
+    ElMessage.warning("请先登录");
     return;
   }
 
   try {
     await resumeFormRef.value.validate();
-    
+
     // 使用getCurrentDateTime函数获取当前时间
     const createtime = getCurrentDateTime();
-    
+
     const resumeData = {
       ...resumeForm,
       username: accountStore.info.username,
-      createtime: createtime // 添加创建时间
+      createtime: createtime, // 添加创建时间
     };
-    
+
     await createResumeService(resumeData);
-    ElMessage.success('简历保存成功');
-    
+    ElMessage.success("简历保存成功");
+
     // 重置表单
     resumeFormRef.value.resetFields();
-    
+
     // 刷新简历列表
     await fetchResumes();
   } catch (error) {
-    console.error('保存简历失败:', error);
-    ElMessage.error('保存简历失败，请重试');
+    console.error("保存简历失败:", error);
+    ElMessage.error("保存简历失败，请重试");
   }
 };
 
 // 提交简历分析
 const submitAnalysis = async () => {
   if (!accountStore.info?.username) {
-    ElMessage.warning('请先登录');
+    ElMessage.warning("请先登录");
     return;
   }
 
   try {
     await resumeFormRef.value.validate();
-    
-    ElMessage.info('正在分析简历，请稍候...');
+
+    ElMessage.info("正在分析简历，请稍候...");
     // 只传递简历内容给assessResumeService接口
     const analysisResponse = await assessResumeService(resumeForm.content);
-    
+
     // 解析分析结果
     const parsedResult = parseAnalysisResult(analysisResponse);
     if (parsedResult) {
@@ -206,25 +194,27 @@ const submitAnalysis = async () => {
         createtime: getCurrentDateTime(),
         score: parsedResult.score,
         analysis: parsedResult.analysis,
-        advice: Array.isArray(parsedResult.suggestions) ? parsedResult.suggestions.join('\n\n') : parsedResult.suggestions
+        advice: Array.isArray(parsedResult.suggestions)
+          ? parsedResult.suggestions.join("\n\n")
+          : parsedResult.suggestions,
       };
-      
+
       // 保存简历
       await createResumeService(resumeData);
-      
-      ElMessage.success('分析完成并保存');
-      
+
+      ElMessage.success("分析完成并保存");
+
       // 重置表单
       resumeFormRef.value.resetFields();
-      
+
       // 刷新简历列表
       await fetchResumes();
     } else {
-      ElMessage.warning('解析分析结果失败');
+      ElMessage.warning("解析分析结果失败");
     }
   } catch (error) {
-    console.error('分析失败:', error);
-    ElMessage.error('分析失败，请重试');
+    console.error("分析失败:", error);
+    ElMessage.error("分析失败，请重试");
   }
 };
 
@@ -232,9 +222,9 @@ const submitAnalysis = async () => {
 const fetchResumes = async () => {
   try {
     // 从accountStore获取用户名
-    const username = accountStore.info?.username || 'guest';
+    const username = accountStore.info?.username || "guest";
     const response = await getResumeListByUserService(username);
-    
+
     // 确保我们从正确的位置获取数据
     if (response && response.data) {
       resumes.value = response.data;
@@ -244,8 +234,8 @@ const fetchResumes = async () => {
       resumes.value = [];
     }
   } catch (error) {
-    console.error('获取简历列表失败:', error);
-    ElMessage.error('获取简历列表失败，请重试');
+    console.error("获取简历列表失败:", error);
+    ElMessage.error("获取简历列表失败，请重试");
     resumes.value = [];
   }
 };
@@ -261,74 +251,11 @@ const analyzeResume = async (resumeId) => {
   try {
     // 先获取简历详情
     const detailResponse = await getResumeByIdService(resumeId);
-    
-    // 确保我们从正确的位置获取数据
-    let resumeData;
-    if (detailResponse && detailResponse.data) {
-      resumeData = detailResponse.data;
-    } else if (detailResponse && detailResponse.code === 0 && detailResponse.data) {
-      resumeData = detailResponse.data;
-    } else {
-      ElMessage.warning('未找到简历数据');
-      return;
-    }
-    
-    // 调用分析接口
-    if (resumeData.content) {
-      try {
-        ElMessage.info('正在分析简历，请稍候...');
-        const analysisResponse = await assessResumeService(resumeData.content);
-        
-        // 解析分析结果
-        const parsedResult = parseAnalysisResult(analysisResponse);
-        if (parsedResult) {
-          // 更新简历数据
-          const updateData = {
-            id: resumeId,
-            score: parsedResult.score,
-            analysis: parsedResult.analysis,
-            advice: Array.isArray(parsedResult.suggestions) ? parsedResult.suggestions.join('\n\n') : parsedResult.suggestions
-          };
-          
-          // 这里可以添加更新简历的API调用
-          // await updateResumeService(updateData);
-          
-          ElMessage.success('分析完成');
-          
-          // 更新当前简历数据
-          currentResume.value = {
-            ...resumeData,
-            ...updateData
-          };
-          
-          // 显示详情对话框
-          dialogVisible.value = true;
-          
-          // 刷新简历列表
-          await fetchResumes();
-        } else {
-          ElMessage.warning('解析分析结果失败');
-          // 仍然显示简历详情
-          currentResume.value = resumeData;
-          dialogVisible.value = true;
-        }
-      } catch (analysisError) {
-        console.error('简历分析失败:', analysisError);
-        ElMessage.error('简历分析失败，请重试');
-        
-        // 仍然显示简历详情
-        currentResume.value = resumeData;
-        dialogVisible.value = true;
-      }
-    } else {
-      ElMessage.warning('简历内容为空，无法进行分析');
-      // 仍然显示简历详情
-      currentResume.value = resumeData;
-      dialogVisible.value = true;
-    }
-  } catch (error) {
-    console.error('获取简历详情失败:', error);
-    ElMessage.error('获取简历详情失败，请重试');
+    ElMessage.info("正在分析简历，请稍候...");
+    const analysisResponse = await getAssessmentService(resumeId);
+  } catch (e) {
+    console.error("简历分析失败:", e);
+    ElMessage.error("简历分析失败，请重试");
   }
 };
 
@@ -336,21 +263,21 @@ const analyzeResume = async (resumeId) => {
 const deleteResume = async (resumeId) => {
   try {
     await deleteResumeService(resumeId);
-    ElMessage.success('删除成功');
+    ElMessage.success("删除成功");
     // 刷新简历列表
     await fetchResumes();
   } catch (error) {
-    console.error('删除简历失败:', error);
-    ElMessage.error('删除简历失败，请重试');
+    console.error("删除简历失败:", error);
+    ElMessage.error("删除简历失败，请重试");
   }
 };
 
 // 获取简历类型标签
 const getTypeLabel = (type) => {
   const typeMap = {
-    'campus': '校园招聘',
-    'social': '社会招聘',
-    'intern': '实习招聘'
+    campus: "校园招聘",
+    social: "社会招聘",
+    intern: "实习招聘",
   };
   return typeMap[type] || type;
 };
@@ -358,30 +285,31 @@ const getTypeLabel = (type) => {
 // 获取标签类型
 const getTypeTagType = (type) => {
   const typeTagMap = {
-    'campus': 'success',
-    'social': 'primary',
-    'intern': 'warning'
+    campus: "success",
+    social: "primary",
+    intern: "warning",
   };
-  return typeTagMap[type] || '';
+  return typeTagMap[type] || "";
 };
 
 // 解析分析结果
 const parseAnalysisResult = (analysisData) => {
   if (!analysisData) return null;
-  
+
   try {
     // 尝试解析第一层JSON字符串
-    let parsedData = typeof analysisData === 'string' ? JSON.parse(analysisData) : analysisData;
-    
+    let parsedData =
+      typeof analysisData === "string" ? JSON.parse(analysisData) : analysisData;
+
     // 检查是否有data字段，并且是字符串
-    if (parsedData.data && typeof parsedData.data === 'string') {
+    if (parsedData.data && typeof parsedData.data === "string") {
       // 尝试解析第二层JSON字符串
       const innerData = JSON.parse(parsedData.data);
-      
+
       // 检查是否有choices字段
       if (innerData.choices && innerData.choices.length > 0) {
         const content = innerData.choices[0].message.content;
-        
+
         // 提取JSON部分（去除markdown标记）
         const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
         if (jsonMatch && jsonMatch[1]) {
@@ -390,13 +318,13 @@ const parseAnalysisResult = (analysisData) => {
           return finalResult;
         }
       }
-      
+
       return innerData; // 如果没有找到预期的结构，返回内部数据
     }
-    
+
     return parsedData; // 如果没有data字段或不是字符串，返回第一层解析结果
   } catch (error) {
-    console.error('解析分析结果失败:', error);
+    console.error("解析分析结果失败:", error);
     return null;
   }
 };
@@ -411,17 +339,17 @@ const scoreValue = computed(() => {
 // 计算属性：建议列表
 const adviceSuggestions = computed(() => {
   if (!currentResume.value || !currentResume.value.advice) return [];
-  
+
   // 如果建议是字符串，尝试按换行符分割
-  if (typeof currentResume.value.advice === 'string') {
-    return currentResume.value.advice.split(/\n+/).filter(item => item.trim());
+  if (typeof currentResume.value.advice === "string") {
+    return currentResume.value.advice.split(/\n+/).filter((item) => item.trim());
   }
-  
+
   // 如果已经是数组，直接返回
   if (Array.isArray(currentResume.value.advice)) {
     return currentResume.value.advice;
   }
-  
+
   return [];
 });
 
@@ -433,11 +361,13 @@ onMounted(async () => {
 <style scoped>
 .resume-manager {
   padding: 20px;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
   border-radius: 8px;
+  padding-top: 0px;
 }
 
-.resume-form, .resume-list {
+.resume-form,
+.resume-list {
   margin-top: 20px;
   padding: 20px;
   background-color: white;
@@ -450,7 +380,9 @@ onMounted(async () => {
   line-height: 1.8;
 }
 
-.analysis-content, .advice-content, .resume-content {
+.analysis-content,
+.advice-content,
+.resume-content {
   padding: 15px;
   background-color: #f9f9f9;
   border-radius: 4px;
@@ -459,7 +391,8 @@ onMounted(async () => {
   white-space: pre-line;
 }
 
-.analysis-section, .advice-section {
+.analysis-section,
+.advice-section {
   margin-top: 20px;
 }
 
@@ -481,6 +414,6 @@ h3 {
 h4 {
   margin-top: 15px;
   margin-bottom: 5px;
-  color: #409EFF;
+  color: #409eff;
 }
 </style>

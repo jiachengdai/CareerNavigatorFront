@@ -17,3 +17,6 @@ export const getResumeAssessmentRecordsService = (resumeId) => {
 export const deleteResumeAssessmentRecordService = (id) => {
   return request.delete(`/resume-assessment/delete/${id}`);
 } 
+export const getAssessmentService=(id)=>{
+  return request.post('/analysis-report/generate?resumeId='+id);
+}

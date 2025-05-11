@@ -1,15 +1,29 @@
 <template>
-
   <div class="setting">
     <!-- 弹框模板设置 -->
-    <a-button type="primary" @click="resumeSettingClick" style="margin-right: 10px;">简历设置</a-button>
+    <a-button
+      type="primary"
+      @click="resumeSettingClick"
+      style="margin-right: 10px; background-color: #1e90ff; border-color: #1e90ff"
+      >简历设置</a-button
+    >
     <a-modal v-model:open="open" title="简历基本设置">
       <template #footer>
-        <a-button key="submit" type="primary" @click="resumeSettingClickOK">确定</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          @click="resumeSettingClickOK"
+          style="background-color: #1e90ff; border-color: #1e90ff"
+          >确定</a-button
+        >
       </template>
       <!-- 选择模板 -->
       <a-form-item label="简历模板选择" name="简历模板选择">
-        <a-select v-model:value="currentTemplate" @change="handleTemplateChange" style="width: 150px;">
+        <a-select
+          v-model:value="currentTemplate"
+          @change="handleTemplateChange"
+          style="width: 150px"
+        >
           <a-select-option v-for="item in templates" :key="item.id" :value="item.id">
             {{ item.name }}
           </a-select-option>
@@ -17,39 +31,85 @@
       </a-form-item>
       <!-- 设置简历主色调-->
       <a-form-item label="简历主色调" name="简历主色调">
-        <input id="themeColor1" class="changeColor" type="color" v-model="resumeSetting.themeColor1"
-          @change="(e) => themeColor1 = ((e.target as HTMLInputElement).value)" />
+        <input
+          id="themeColor1"
+          class="changeColor"
+          type="color"
+          v-model="resumeSetting.themeColor1"
+          @change="(e) => themeColor1 = ((e.target as HTMLInputElement).value)"
+        />
       </a-form-item>
       <!-- 设置简历副色调 -->
       <a-form-item label="简历副色调" name="简历副色调">
-        <input id="themeColor2" class="changeColor" type="color" v-model="resumeSetting.themeColor2"
-          @change="(e) => themeColor2 = (e.target as HTMLInputElement).value" />
+        <input
+          id="themeColor2"
+          class="changeColor"
+          type="color"
+          v-model="resumeSetting.themeColor2"
+          @change="(e) => themeColor2 = (e.target as HTMLInputElement).value"
+        />
       </a-form-item>
       <!-- 设置字体大小 -->
       <a-form-item label="字体大小" name="字体大小">
-        <a-slider v-model:value="fontSize" :min="12" :max="24" />
+        <a-slider
+          v-model:value="fontSize"
+          :min="12"
+          :max="24"
+          style="--ant-slider-track-color: #1e90ff"
+        />
       </a-form-item>
       <!-- 设置段落间距 -->
       <a-form-item label="段落间距" name="段落间距">
-        <a-slider v-model:value="paragraphSpacing" :min="0" :max="30" />
+        <a-slider
+          v-model:value="paragraphSpacing"
+          :min="0"
+          :max="30"
+          style="--ant-slider-track-color: #1e90ff"
+        />
       </a-form-item>
       <!-- 设置区块间距 -->
       <a-form-item label="区块间距" name="区块间距">
-        <a-slider v-model:value="sectionSpacing" :min="0" :max="30" />
+        <a-slider
+          v-model:value="sectionSpacing"
+          :min="0"
+          :max="30"
+          style="--ant-slider-track-color: #1e90ff"
+        />
       </a-form-item>
       <!-- 设置左右页边距 -->
       <a-form-item label="左右页边距" name="左右页边距">
-        <a-slider v-model:value="padding_left_right" :min="0" :max="65" />
+        <a-slider
+          v-model:value="padding_left_right"
+          :min="0"
+          :max="65"
+          style="--ant-slider-track-color: #1e90ff"
+        />
       </a-form-item>
       <!-- 设置上下页边距 -->
       <a-form-item label="上下页边距" name="上下页边距">
-        <a-slider v-model:value="padding_top_bottom" :min="0" :max="35" />
+        <a-slider
+          v-model:value="padding_top_bottom"
+          :min="0"
+          :max="35"
+          style="--ant-slider-track-color: #1e90ff"
+        />
       </a-form-item>
     </a-modal>
 
-    <a-button type="primary" @click="exportToPDF" id="export-button">导出PDF</a-button>
+    <a-button
+      type="primary"
+      @click="exportToPDF"
+      id="export-button"
+      style="background-color: #1e90ff; border-color: #1e90ff"
+      >导出PDF</a-button
+    >
   </div>
-  <div class="preview" ref="resumePreview" @mousedown="startDragging" @wheel.prevent="handleZoom">
+  <div
+    class="preview"
+    ref="resumePreview"
+    @mousedown="startDragging"
+    @wheel.prevent="handleZoom"
+  >
     <div class="resume-content" :style="contentStyle">
       <!-- 动态渲染当前选中的模板组件 -->
       <component :is="currentComponent" :colorShades="colorShades" />
@@ -373,5 +433,5 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* 导入外部css */
-@import '../styles/styles.css';
+@import "../styles/styles.css";
 </style>

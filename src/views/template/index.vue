@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { message } from 'ant-design-vue';
-import { ShopOutlined, CheckCircleFilled } from '@ant-design/icons-vue';
+import { ref, onMounted, computed } from "vue";
+import { message } from "ant-design-vue";
+import { ShopOutlined, CheckCircleFilled } from "@ant-design/icons-vue";
 import { getTemplates } from "../../utils/getTemplates";
 import type { Template } from "../../types/template";
 import { useResumeStore } from "../../store";
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
+import router from "@/router";
 
 // 模板列表
 const templates = ref<Template[]>([]);
@@ -15,26 +16,27 @@ const { resumeSetting } = storeToRefs(resumeStore);
 // 当前选中的模板ID
 const currentTemplate = computed({
   get: () => resumeSetting.value.currentTemplate,
-  set: (val) => resumeStore.updateResumeSetting({ currentTemplate: val })
-})
+  set: (val) => resumeStore.updateResumeSetting({ currentTemplate: val }),
+});
 
 // 获取并初始化模板列表
 onMounted(async () => {
   try {
     templates.value = await getTemplates();
   } catch (error) {
-    message.error('获取模板列表失败');
-    console.error('获取模板列表失败:', error);
+    message.error("获取模板列表失败");
+    console.error("获取模板列表失败:", error);
   }
 });
 
 // 处理模板切换
 const handleTemplateChange = (id: String | null) => {
   if (!id) return;
-  const selectedTemplate = templates.value.find(t => t.id === id);
+  const selectedTemplate = templates.value.find((t) => t.id === id);
   if (selectedTemplate) {
     currentTemplate.value = selectedTemplate.id;
-    message.success(`成功切换到模板: ${selectedTemplate.name}`); // 提示选择成功
+    message.success(`选择模板: ${selectedTemplate.name}`); // 提示选择成功
+    router.push("/resume");
   }
 };
 
@@ -43,7 +45,10 @@ const getTemplateImage = (template: Template): string => {
   if (!template.folderPath || !template.thumbnail) {
     return ""; // 处理无图片情况
   }
-  return new URL(`../../template/${template.folderPath}/${template.thumbnail}`, import.meta.url).href;
+  return new URL(
+    `../../template/${template.folderPath}/${template.thumbnail}`,
+    import.meta.url
+  ).href;
 };
 </script>
 
@@ -55,15 +60,23 @@ const getTemplateImage = (template: Template): string => {
         <template #prefix>
           <shop-outlined />
         </template>
-        模板市场
+        选择一个你喜欢的模版~🤗
       </a-typography-title>
     </div>
 
     <!-- 模板列表 -->
     <div class="template-grid">
-      <div v-for="(template, index) in templates" :key="index" class="template-card-wrapper">
-        <a-card :bordered="false" :class="{ 'selected-template': currentTemplate === template.id }"
-          class="template-card" :bodyStyle="{ padding: '12px' }">
+      <div
+        v-for="(template, index) in templates"
+        :key="index"
+        class="template-card-wrapper"
+      >
+        <a-card
+          :bordered="false"
+          :class="{ 'selected-template': currentTemplate === template.id }"
+          class="template-card"
+          :bodyStyle="{ padding: '12px' }"
+        >
           <!-- 选中标记 -->
           <div v-if="currentTemplate === template.id" class="selected-badge">
             <check-circle-filled />
@@ -72,19 +85,29 @@ const getTemplateImage = (template: Template): string => {
           <!-- 模板内容 -->
           <div class="template-content">
             <div class="template-image-wrapper">
-              <img v-lazy="getTemplateImage(template)" :alt="template.name" class="template-image" />
+              <img
+                v-lazy="getTemplateImage(template)"
+                :alt="template.name"
+                class="template-image"
+              />
             </div>
             <div class="template-info">
               <div class="template-title">{{ template.name }}</div>
               <div class="template-author">
                 <!-- 链接 -->
-                作者：<a :href="String(template.link || '')" target="_blank">{{ template.author }}</a>
+                作者：<a :href="String(template.link || '')" target="_blank">{{
+                  template.author
+                }}</a>
               </div>
               <p class="template-description">{{ template.description }}</p>
-              <a-button :type="currentTemplate === template.id ? 'text' : 'primary'"
+              <a-button
+                :type="currentTemplate === template.id ? 'text' : 'primary'"
                 :class="{ 'selected-button': currentTemplate === template.id }"
-                @click="handleTemplateChange(template.id)" size="small" block>
-                {{ currentTemplate === template.id ? '当前使用中' : '使用此模板' }}
+                @click="handleTemplateChange(template.id)"
+                size="small"
+                block
+              >
+                {{ currentTemplate === template.id ? "当前使用中" : "使用此模板" }}
               </a-button>
             </div>
           </div>
@@ -93,8 +116,6 @@ const getTemplateImage = (template: Template): string => {
     </div>
   </div>
 </template>
-
-
 
 <style scoped>
 .template-container {
