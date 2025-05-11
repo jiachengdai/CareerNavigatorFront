@@ -10,7 +10,7 @@ import JobDetails from '../components/Job/JobDetails.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/login',
+    redirect: '/welcome',
     
   },
   {

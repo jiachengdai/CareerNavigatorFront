@@ -14,6 +14,15 @@
         >
           请选择一个岗位类型开始吧 🚀
         </div>
+        <div style="text-align: right; margin-bottom: 20px; margin-right: 20px">
+          <el-button
+            type="text"
+            style="font-size: 16px"
+            @click="router.push('/interview/manage')"
+          >
+            查看过往面试记录
+          </el-button>
+        </div>
         <div
           style="
             display: grid;
