@@ -10,7 +10,8 @@ import JobDetails from '../components/Job/JobDetails.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/login',
+    
   },
   {
     path: '/resume',
@@ -60,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
     path:'/login',
     name:'login',
     component:()=>import('@/views/Login/index.vue'),
-    meta: { title: 'AI简历 - 登录', hideHeader: true }
+    meta: { title: 'AI简历 - 登录', hideHeader: true ,hideThemeSwitcher: true }, // 隐藏全局布局
   },
   {
     path:'/interview',
@@ -105,12 +106,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/profile/index.vue'),
     meta: { title: 'AI简历 - 个人信息' }
   },
-  {
-    path: '/user-management',
-    name: 'userManagement',
-    component: () => import('@/views/userManagement/index.vue'),
-    meta: { title: 'AI简历 - 用户管理' }
-  },
+ 
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',

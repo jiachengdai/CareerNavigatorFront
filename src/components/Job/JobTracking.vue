@@ -1,7 +1,7 @@
 <template>
   <div class="job-tracking">
     <h2>职位追踪</h2>
-    
+    <p>在这里记录每一次投递的状态✊</p>
     <!-- 筛选和排序控件 - 移到外面，始终显示 -->
     <div class="filters">
       <label for="status-filter">状态筛选:</label>
@@ -18,50 +18,95 @@
         <option value="dateAppliedAsc">申请日期升序</option>
         <option value="dateAppliedDesc">申请日期降序</option>
       </select>
+      <div style="margin-left: auto">
+        <el-button type="primary" @click="newRecordVisible = true">新增记录</el-button>
+      </div>
     </div>
-    
+
+    <!-- 新增记录对话框 -->
+    <el-dialog title="新增投递记录" v-model="newRecordVisible" width="30%" center>
+      <el-form :model="newRecord" ref="newRecordForm">
+        <el-form-item label="岗位名称">
+          <el-input placeholder="请输入岗位名称"></el-input>
+        </el-form-item>
+        <el-form-item label="公司名称">
+          <el-input placeholder="请输入公司名称"></el-input>
+        </el-form-item>
+        <el-form-item label="申请日期">
+          <el-date-picker type="date" placeholder="选择申请日期"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select placeholder="选择投递状态">
+            <el-option label="已投递" value="已投递"></el-option>
+            <el-option label="初筛通过" value="初筛通过"></el-option>
+            <el-option label="面试中" value="面试中"></el-option>
+            <el-option label="已录用" value="已录用"></el-option>
+            <el-option label="已拒绝" value="已拒绝"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer" style="margin-left: 120px">
+        <el-button @click="newRecordVisible = false">取 消</el-button>
+        <el-button type="primary" @click="newRecordVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
     <!-- 加载状态 -->
     <div v-if="isLoading" class="loading">加载中...</div>
-    
+
     <!-- 错误提示 -->
     <div v-else-if="error" class="error">
       <p>数据加载失败: {{ error.message }}</p>
       <el-button type="primary" size="small" @click="loadApplyRecords">重试</el-button>
     </div>
-    
+
     <!-- 无数据提示 -->
     <div v-else-if="filteredJobs.length === 0" class="no-data">
       <p>暂无投递记录</p>
       <el-button type="primary" @click="goToJobList">去投递简历</el-button>
     </div>
-    
+
     <!-- 有数据时显示 -->
-    <div v-else>      
+    <div v-else>
       <!-- 职位列表 -->
       <table>
         <thead>
-        <tr>
-          <th>投递记录编号</th>
-          <th>岗位名称</th>
-          <th>公司名称</th>
-          <th>申请日期</th>
-          <th>状态</th>
-          <th>操作</th>
-        </tr>
+          <tr>
+            <!-- <th>投递记录编号</th> -->
+            <th>岗位名称</th>
+            <th>公司名称</th>
+            <th>申请日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="job in filteredJobs" :key="job.id">
-          <td>{{ job.id }}</td>
-          <td>{{ getJobName(job.jobid || job.jobId) }}</td>
-          <td>{{ getCompanyName(job.jobid || job.jobId) }}</td>
-          <td>{{ formatDate(job.applydate) }}</td>
-          <td>
-            <span :class="getStatusClass(job.status)">{{ job.status }}</span>
-          </td>
-          <td>
-            <el-button type="text" size="small" @click="viewJobDetails(job.jobid || job.jobId)">查看职位详情</el-button>
-          </td>
-        </tr>
+          <tr v-for="job in filteredJobs" :key="job.id">
+            <!-- <td>{{ job.id }}</td> -->
+            <td>{{ getJobName(job.jobid || job.jobId) }}</td>
+            <td>{{ getCompanyName(job.jobid || job.jobId) }}</td>
+            <td>{{ formatDate(job.applydate) }}</td>
+            <td>
+              <el-select
+                v-model="job.status"
+                placeholder="选择状态"
+                @change="updateJobStatus(job)"
+              >
+                <el-option label="已投递" value="已投递"></el-option>
+                <el-option label="初筛通过" value="初筛通过"></el-option>
+                <el-option label="面试中" value="面试中"></el-option>
+                <el-option label="已录用" value="已录用"></el-option>
+                <el-option label="已拒绝" value="已拒绝"></el-option>
+              </el-select>
+            </td>
+            <td>
+              <el-button
+                type="text"
+                size="small"
+                @click="viewJobDetails(job.jobid || job.jobId)"
+                >查看职位详情</el-button
+              >
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -69,13 +114,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { getApplyRecordsByUserService } from '@/api/jobApply';
-import { getAllJobsService } from '@/api/job';
-import { useAccountInfoStore } from '@/store/account';
-
+import { ref, computed, onMounted, inject } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { getApplyRecordsByUserService } from "@/api/jobApply";
+import { getAllJobsService } from "@/api/job";
+import { useAccountInfoStore } from "@/store/account";
+const newRecordVisible = ref(false);
 // 路由实例
 const router = useRouter();
 // 账户信息存储
@@ -89,27 +134,36 @@ const jobs = ref([]);
 // 岗位数据
 const allJobs = ref([]);
 // 筛选状态
-const selectedStatus = ref('all');
+const selectedStatus = ref("all");
 // 排序顺序
-const sortOrder = ref('dateAppliedDesc');
-
+const sortOrder = ref("dateAppliedDesc");
+const getTagType = (status) => {
+  const statusMap = {
+    已投递: "info",
+    初筛通过: "success",
+    面试中: "warning",
+    已录用: "success",
+    已拒绝: "danger",
+  };
+  return statusMap[status] || "default";
+};
 // 获取岗位详细信息
 const getJobDetails = (jobId) => {
   if (!jobId) return null;
-  return allJobs.value.find(job => job.id === jobId);
+  return allJobs.value.find((job) => job.id === jobId);
 };
 
 // 计算筛选和排序后的职位列表
 const filteredJobs = computed(() => {
   let filtered = jobs.value;
   // 筛选逻辑
-  if (selectedStatus.value !== 'all') {
-    filtered = filtered.filter(job => job.status === selectedStatus.value);
+  if (selectedStatus.value !== "all") {
+    filtered = filtered.filter((job) => job.status === selectedStatus.value);
   }
   // 排序逻辑
-  if (sortOrder.value === 'dateAppliedAsc') {
+  if (sortOrder.value === "dateAppliedAsc") {
     filtered.sort((a, b) => new Date(a.applydate) - new Date(b.applydate));
-  } else if (sortOrder.value === 'dateAppliedDesc') {
+  } else if (sortOrder.value === "dateAppliedDesc") {
     filtered.sort((a, b) => new Date(b.applydate) - new Date(a.applydate));
   }
   return filtered;
@@ -117,23 +171,21 @@ const filteredJobs = computed(() => {
 
 // 格式化日期
 const formatDate = (dateString) => {
-  if (!dateString) return '未知日期';
+  if (!dateString) return "未知日期";
   const date = new Date(dateString);
-  return isNaN(date.getTime()) 
-    ? dateString 
-    : date.toLocaleDateString('zh-CN');
+  return isNaN(date.getTime()) ? dateString : date.toLocaleDateString("zh-CN");
 };
 
 // 获取状态对应的样式类
 const getStatusClass = (status) => {
   const statusMap = {
-    '已投递': 'status-applied',
-    '初筛通过': 'status-passed',
-    '面试中': 'status-interviewing',
-    '已录用': 'status-offered',
-    '已拒绝': 'status-rejected'
+    已投递: "status-applied",
+    初筛通过: "status-passed",
+    面试中: "status-interviewing",
+    已录用: "status-offered",
+    已拒绝: "status-rejected",
   };
-  return statusMap[status] || 'status-default';
+  return statusMap[status] || "status-default";
 };
 
 // 加载岗位数据
@@ -146,7 +198,7 @@ const loadJobData = async () => {
       allJobs.value = response.data;
     }
   } catch (err) {
-    console.error('获取岗位数据失败:', err);
+    console.error("获取岗位数据失败:", err);
   }
 };
 
@@ -154,21 +206,21 @@ const loadJobData = async () => {
 const loadApplyRecords = async () => {
   isLoading.value = true;
   error.value = null;
-  
+
   // 确保岗位数据已加载
   await loadJobData();
-  
+
   // 检查用户是否登录
   if (!accountStore.info || !accountStore.info.username) {
     isLoading.value = false;
-    error.value = { message: '请先登录后查看投递记录' };
+    error.value = { message: "请先登录后查看投递记录" };
     return;
   }
-  
+
   try {
     const response = await getApplyRecordsByUserService(accountStore.info.username);
-    console.log('投递记录响应:', response);
-    
+    console.log("投递记录响应:", response);
+
     if (response && response.data) {
       jobs.value = response.data;
     } else if (response && response.code === 0 && response.data) {
@@ -177,9 +229,9 @@ const loadApplyRecords = async () => {
       jobs.value = [];
     }
   } catch (err) {
-    console.error('获取投递记录失败:', err);
-    error.value = { 
-      message: err.response?.data?.message || '获取投递记录失败，请稍后重试' 
+    console.error("获取投递记录失败:", err);
+    error.value = {
+      message: err.response?.data?.message || "获取投递记录失败，请稍后重试",
     };
   } finally {
     isLoading.value = false;
@@ -188,16 +240,16 @@ const loadApplyRecords = async () => {
 
 // 跳转到岗位列表页
 const goToJobList = () => {
-  router.push({ name: 'JobList' });
+  router.push({ name: "JobList" });
 };
 
 // 查看岗位详情
 const viewJobDetails = (jobId) => {
   if (!jobId) {
-    ElMessage.warning('无法查看详情，未找到岗位ID');
+    ElMessage.warning("无法查看详情，未找到岗位ID");
     return;
   }
-  router.push({ name: 'JobDetails', params: { id: jobId } });
+  router.push({ name: "JobDetails", params: { id: jobId } });
 };
 
 // 筛选职位
@@ -219,7 +271,7 @@ const getJobName = (jobId) => {
 // 获取公司名称
 const getCompanyName = (jobId) => {
   const jobDetail = getJobDetails(jobId);
-  return jobDetail ? jobDetail.company : '未知公司';
+  return jobDetail ? jobDetail.company : "未知公司";
 };
 
 // 组件挂载时加载数据
@@ -231,9 +283,12 @@ onMounted(loadApplyRecords);
   padding: 20px;
   max-width: 1000px;
   margin: 0 auto;
+  min-height: 60vh;
 }
 
-.loading, .error, .no-data {
+.loading,
+.error,
+.no-data {
   padding: 40px 0;
   text-align: center;
   color: #666;
@@ -275,7 +330,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ebeef5;
   padding: 12px;
   text-align: left;

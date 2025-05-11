@@ -2,10 +2,10 @@
   <div class="job-list">
     <h2 class="job-list-title">岗位列表</h2>
     <el-input
-        v-model="searchQuery"
-        placeholder="搜索岗位..."
-        prefix-icon="el-icon-search"
-        class="search-input"
+      v-model="searchQuery"
+      placeholder="搜索岗位..."
+      prefix-icon="el-icon-search"
+      class="search-input"
     ></el-input>
 
     <!-- 加载状态显示 -->
@@ -18,11 +18,7 @@
 
     <!-- 岗位列表显示（当数据加载成功且无错误时） -->
     <div v-else class="job-grid">
-      <div
-          v-for="job in filteredJobs"
-          :key="job.id"
-          class="job-card-square"
-      >
+      <div v-for="job in filteredJobs" :key="job.id" class="job-card-square">
         <div class="job-card-content" @click="viewJobDetails(job)">
           <div class="job-left">
             <div class="job-title">{{ job.jobname }}</div>
@@ -35,25 +31,26 @@
             </div>
             <div class="job-publishdate">发布时间：{{ job.publishdate }}</div>
           </div>
-          
+
           <div class="job-right">
             <div class="job-salary">{{ job.salary }} 元/月</div>
             <!-- 添加投递简历按钮 -->
             <div class="job-actions">
-              <el-button type="primary" size="small" @click.stop="applyJob(job)" class="apply-btn">投递简历</el-button>
+              <el-button
+                type="primary"
+                size="small"
+                @click.stop="applyJob(job)"
+                class="apply-btn"
+                >投递简历</el-button
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- 投递成功/失败提示对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
-      width="30%"
-      center
-    >
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="30%" center>
       <span>{{ dialogMessage }}</span>
       <template #footer>
         <span class="dialog-footer">
@@ -65,17 +62,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { getAllJobsService } from '@/api/job';
-import { createJobApplyService } from '@/api/jobApply';
-import { useAccountInfoStore } from '@/store/account';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { getAllJobsService } from "@/api/job";
+import { createJobApplyService } from "@/api/jobApply";
+import { useAccountInfoStore } from "@/store/account";
 
 // 存储岗位数据
 const jobs = ref([]);
 // 搜索关键词
-const searchQuery = ref('');
+const searchQuery = ref("");
 // 加载状态
 const isLoading = ref(true);
 // 错误信息
@@ -86,8 +83,8 @@ const router = useRouter();
 const accountStore = useAccountInfoStore();
 // 对话框控制
 const dialogVisible = ref(false);
-const dialogTitle = ref('');
-const dialogMessage = ref('');
+const dialogTitle = ref("");
+const dialogMessage = ref("");
 
 // 生命周期函数：组件挂载后调用后端接口获取岗位数据
 onMounted(async () => {
@@ -107,52 +104,58 @@ const filteredJobs = computed(() => {
   if (!searchQuery.value) return jobs.value;
   const query = searchQuery.value.toLowerCase();
   return jobs.value.filter(
-      (job) =>
-          job.jobname.toLowerCase().includes(query) ||
-          job.company.toLowerCase().includes(query) ||
-          job.location.toLowerCase().includes(query)
+    (job) =>
+      job.jobname.toLowerCase().includes(query) ||
+      job.company.toLowerCase().includes(query) ||
+      job.location.toLowerCase().includes(query)
   );
 });
 
 // 点击岗位卡片跳转到详情页
 const viewJobDetails = (job) => {
-  router.push({ name: 'JobDetails', params: { id: job.id } });
+  router.push({ name: "JobDetails", params: { id: job.id } });
 };
 
 // 投递简历函数
 const applyJob = async (job) => {
   // 检查用户是否登录
   if (!accountStore.info || !accountStore.info.username) {
-    dialogTitle.value = '投递失败';
-    dialogMessage.value = '请先登录后再投递简历';
+    dialogTitle.value = "投递失败";
+    dialogMessage.value = "请先登录后再投递简历";
     dialogVisible.value = true;
     return;
   }
-  
+
   try {
     // 准备投递数据
     const currentDate = new Date();
-    const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
-    
+    const formattedDate = `${currentDate.getFullYear()}-${String(
+      currentDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")} ${String(
+      currentDate.getHours()
+    ).padStart(2, "0")}:${String(currentDate.getMinutes()).padStart(2, "0")}:${String(
+      currentDate.getSeconds()
+    ).padStart(2, "0")}`;
+
     const jobApplyData = {
       username: accountStore.info.username,
       jobid: job.id,
       applydate: formattedDate,
-      status: '已投递' // 修改为已投递状态
+      status: "已投递", // 修改为已投递状态
     };
-    
+
     // 调用API投递简历
     const response = await createJobApplyService(jobApplyData);
-    
+
     // 投递成功提示
-    dialogTitle.value = '投递成功';
+    dialogTitle.value = "投递成功";
     dialogMessage.value = `您已成功投递"${job.jobname}"职位的简历，请等待企业回复`;
     dialogVisible.value = true;
   } catch (err) {
-    console.error('投递简历失败:', err);
+    console.error("投递简历失败:", err);
     // 投递失败提示
-    dialogTitle.value = '投递失败';
-    dialogMessage.value = err.response?.data?.message || '投递简历失败，请稍后重试';
+    dialogTitle.value = "投递失败";
+    dialogMessage.value = err.response?.data?.message || "投递简历失败，请稍后重试";
     dialogVisible.value = true;
   }
 };
@@ -160,8 +163,7 @@ const applyJob = async (job) => {
 
 <style scoped>
 .job-list {
-  padding: 30px;
-  background-color: #f9fafc;
+  /* background-color: #f9fafc; */
   min-height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
@@ -176,7 +178,7 @@ const applyJob = async (job) => {
 }
 
 .job-list-title::after {
-  content: '';
+  content: "";
   display: block;
   width: 60px;
   height: 3px;
@@ -325,27 +327,27 @@ const applyJob = async (job) => {
   .job-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .job-card-content {
     flex-direction: column;
   }
-  
+
   .job-left {
     padding-right: 0;
     margin-bottom: 15px;
   }
-  
+
   .job-right {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
   }
-  
+
   .job-salary {
     margin-bottom: 0;
   }

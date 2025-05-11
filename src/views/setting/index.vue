@@ -1,15 +1,23 @@
 <template>
-
   <div class="job-seeker">
-
-    <h1>岗位求职</h1>
-    <p>在这里你可以查找岗位、参与交流讨论以及追踪职位申请状态。</p>
+    <div class="title" style="text-align: center">开启你的求职之旅 🚀</div>
+    <div
+      style="
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+      "
+    >
+      找到属于你的梦想岗位 🌟
+    </div>
     <div class="tabs">
       <el-tabs v-model="activeTab" type="card">
         <el-tab-pane label="岗位列表" name="list">
           <JobList />
         </el-tab-pane>
-        <el-tab-pane label="职位追踪" name="tracking">
+        <el-tab-pane label="投递追踪" name="tracking">
           <JobTracking />
         </el-tab-pane>
       </el-tabs>
@@ -18,37 +26,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import JobList from '../../components/Job/JobList.vue';
-import JobTracking from '../../components/Job/JobTracking.vue';
+import { ref } from "vue";
+import JobList from "../../components/Job/JobList.vue";
+import JobTracking from "../../components/Job/JobTracking.vue";
 
-const activeTab = ref('list');
+const activeTab = ref("list");
 </script>
 
 <style scoped>
 .job-seeker {
-  padding: 30px;
   max-width: 1200px;
   margin: 0 auto;
-  background: #f8fafc;
+  /* background: #f8fafc; */
   min-height: 100vh;
-}
-
-h1 {
-  color: #2d3748;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-p {
-  color: #718096;
-  font-size: 1.1rem;
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
 }
 
 .tabs {
@@ -108,5 +98,11 @@ p {
     padding: 15px 20px !important;
     font-size: 0.9rem;
   }
+}
+.title {
+  font-weight: bolder;
+  font-size: 32px;
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 </style>
